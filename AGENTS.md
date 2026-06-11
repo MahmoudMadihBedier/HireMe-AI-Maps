@@ -33,11 +33,14 @@ firebase deploy --only functions         # after editing functions/index.js
 firebase deploy --only firestore:indexes
 ```
 
+Cloud Functions source: `functions/index.js` — 4 v2 handlers (Firestore create/update + RTDB create), runtime Node.js 20.
+
 ## Gotchas & Conventions
 
 - **Testing:** Manual fakes only — no mockito, no mocktail. Call `Get.reset()` in `tearDown`. No Firebase/Supabase init needed in tests.
 - **Firestore:** All writes must use `SetOptions(merge: true)` — never plain `set()`.
-- **Logout (four-step):** `deleteToken()` → `clearAuthSession()` → `signOut()`. Skipping any step leaks FCM tokens.
+- **Logout:** `deleteToken()` → `clearAuthSession()` → `signOut()`. Skipping any step leaks FCM tokens.
+- **Notification data types:** `chat_message`, `application_update`, `new_application`. Maps to different routes in `NotificationService._navigateFromData`.
 - **Notification badges:** Stream subscriptions must have `onError` handler that resets count to 0, else a stream error kills the badge permanently.
 - **Storage:** `firebase_storage` is in `pubspec.yaml` but **unused** — all uploads go through Supabase Storage.
 - **Routing:** Import only `app/routes/app_pages.dart` — `app_routes.dart` is `part of` it. Use `Routes.*` constants. Protected routes use `RoleGuardMiddleware`; `Routes.jobSeekerSearchJobs` has **no** middleware (intentionally public).

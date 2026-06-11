@@ -46,6 +46,8 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   cached_network_image: ^3.4.1
   flutter_cached_pdfview: ^0.4.3
+  google_maps_flutter: ^2.17.1
+  syncfusion_flutter_pdf: ^33.2.12
 
 dev_dependencies:
   flutter_test:

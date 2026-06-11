@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../../core/utils/app_color.dart';
+import '../../../../routes/app_pages.dart';
 import '../controllers/company_profile_controller.dart';
 
 class CompanyProfileView extends GetView<CompanyProfileController> {
@@ -50,6 +51,8 @@ class CompanyProfileView extends GetView<CompanyProfileController> {
                 const SizedBox(height: 10),
                 _infoCard(),
                 const SizedBox(height: 22),
+                _mapButton(),
+                const SizedBox(height: 12),
                 _logoutButton(),
               ],
             ),
@@ -466,6 +469,32 @@ class CompanyProfileView extends GetView<CompanyProfileController> {
       color: AppColor.kblack.withValues(alpha: 0.05),
       indent: 66,
       endIndent: 16,
+    );
+  }
+
+  Widget _mapButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 48,
+      child: ElevatedButton.icon(
+        onPressed: () => Get.toNamed(Routes.COMPANY_MAP),
+        icon: const Icon(Icons.map_rounded, color: Colors.white, size: 20),
+        label: const Text(
+          'View on Map',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColor.kblue,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
     );
   }
 

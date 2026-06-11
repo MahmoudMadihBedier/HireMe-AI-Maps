@@ -41,6 +41,7 @@ abstract class Routes {
   static const companyNotifications = _Paths.companyNotifications;
 
   static const pdfViewer = _Paths.pdfViewer;
+  static const COMPANY_MAP = _Paths.COMPANY_MAP;
 }
 
 abstract class _Paths {
@@ -77,4 +78,5 @@ abstract class _Paths {
   static const companyNotifications = '/company-notifications';
   static const searchJobs = '/search-jobs';
   static const pdfViewer = '/pdf-viewer';
+  static const COMPANY_MAP = '/company-map';
 }
