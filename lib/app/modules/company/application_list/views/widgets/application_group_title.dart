@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:hire_me/app/modules/company/application_list/controllers/application_list_controller.dart';
 import 'package:hire_me/app/modules/company/application_review/model/job_with_application.dart';
 import 'package:hire_me/core/utils/app_color.dart';
 
@@ -9,6 +11,8 @@ class ApplicationGroupTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<ApplicationListController>();
+
     return Row(
       children: [
         Container(
@@ -51,6 +55,39 @@ class ApplicationGroupTitle extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(width: 8),
+        Obx(() {
+          final isRanking = controller.isRanking.value;
+          return SizedBox(
+            height: 28,
+            child: ElevatedButton(
+              onPressed:
+                  isRanking ? null : () => controller.rankCandidatesWithAI(job.jobId),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                backgroundColor: AppColor.kblue,
+                foregroundColor: AppColor.kwhite,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              child: isRanking
+                  ? SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColor.kwhite,
+                      ),
+                    )
+                  : const Text('Rank with AI ✨'),
+            ),
+          );
+        }),
       ],
     );
   }

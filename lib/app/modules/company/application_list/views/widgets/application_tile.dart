@@ -15,6 +15,12 @@ class ApplicantTile extends StatelessWidget {
     super.key,
   });
 
+  Color _matchColor(int percentage) {
+    if (percentage >= 80) return AppColor.ksuccess;
+    if (percentage >= 60) return const Color(0xFFF59E0B);
+    return AppColor.kdanger;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -53,6 +59,27 @@ class ApplicantTile extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
+                  if (applicant.matchPercentage != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _matchColor(applicant.matchPercentage!),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        '${applicant.matchPercentage}%',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColor.kwhite,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  if (applicant.matchPercentage != null)
+                    const SizedBox(height: 6),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,

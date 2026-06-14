@@ -3,13 +3,14 @@
   <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.CAMERA"/>
-    <meta-data
-    android:name="com.google.android.geo.API_KEY"
-    android:value="AIzaSyCtI2Xqnu1TMHoBQpps2VcyRQzC3ofaUUI"/>
     <application 
+   
         android:label="hire_me"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+         <meta-data
+           android:name="com.google.android.geo.API_KEY"
+           android:value="AIzaSyCtI2Xqnu1TMHoBQpps2VcyRQzC3ofaUUI"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

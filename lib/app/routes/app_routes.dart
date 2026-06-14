@@ -24,6 +24,7 @@ abstract class Routes {
   static const companyPostJob = _Paths.company + _Paths.postJob;
 
   static const jobSeekerNotifications = _Paths.jobSeeker + _Paths.notifications;
+  static const jobSeekerCvAnalysis = _Paths.jobSeeker + _Paths.cvAnalysis;
   static const jobSeekerSavedJobs = _Paths.jobSeeker + _Paths.savedJobs;
   static const jobSeekerChat = _Paths.jobSeeker + _Paths.chat;
   static const jobSeekerChatDetails = _Paths.jobSeeker + _Paths.chatDetails;
@@ -65,6 +66,7 @@ abstract class _Paths {
   static const myApplications = '/my-applications';
   static const postJob = '/post-job';
   static const notifications = '/notifications';
+  static const cvAnalysis = '/cv-analysis';
   static const savedJobs = '/saved-jobs';
   static const chat = '/chat';
   static const chatDetails = '/chat-details';

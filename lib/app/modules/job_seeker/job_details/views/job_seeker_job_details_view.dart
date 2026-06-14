@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'package:hire_me/app/routes/app_pages.dart';
 import 'package:hire_me/core/utils/app_color.dart';
 import 'package:hire_me/core/utils/app_text_style.dart';
 
@@ -42,6 +43,8 @@ class JobSeekerJobDetailsView extends GetView<JobSeekerJobDetailsController> {
                       _buildRequirementsCard(),
                       const SizedBox(height: 28),
                       _buildApplyButton(),
+                      const SizedBox(height: 12),
+                      _buildAnalyzeCvButton(),
                     ],
                   ),
                 ),
@@ -412,6 +415,36 @@ class JobSeekerJobDetailsView extends GetView<JobSeekerJobDetailsController> {
             color: AppColor.kwhite,
             fontSize: 15,
             fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnalyzeCvButton() {
+    final job = controller.job.value!;
+
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: () => Get.toNamed(
+          Routes.jobSeekerCvAnalysis,
+          arguments: {'jobDescription': '${job.description}\n\nRequirements:\n${job.requirements}'},
+        ),
+        icon: const Icon(Icons.analytics_outlined, size: 20),
+        label: const Text(
+          'Analyze My CV',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColor.kblue,
+          side: BorderSide(color: AppColor.kblue),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
           ),
         ),
       ),

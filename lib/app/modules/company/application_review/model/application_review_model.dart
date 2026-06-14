@@ -15,6 +15,7 @@ class ApplicationReviewModel {
   final String updatedAt;
   final String applicantFcmToken;
   final String jobId;
+  final int? matchPercentage;
 
   ApplicationReviewModel({
     required this.id,
@@ -33,5 +34,6 @@ class ApplicationReviewModel {
     this.updatedAt = '',
     this.applicantFcmToken = '',
     this.jobId = '',
+    this.matchPercentage,
   });
 }

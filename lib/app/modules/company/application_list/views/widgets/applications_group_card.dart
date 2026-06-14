@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:hire_me/app/modules/company/application_list/controllers/application_list_controller.dart';
 import 'package:hire_me/app/modules/company/application_list/views/widgets/application_group_title.dart';
 import 'package:hire_me/app/modules/company/application_list/views/widgets/application_tile.dart';
 import 'package:hire_me/app/modules/company/application_review/model/job_with_application.dart';
@@ -53,6 +55,32 @@ class ApplicationsGroupCard extends StatelessWidget {
                 return ApplicantTile(applicant: applicant, readOnly: readOnly);
               },
             ),
+            Obx(() {
+              final controller = Get.find<ApplicationListController>();
+              if (!controller.isRanking.value) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Analyzing candidates...',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColor.greydark,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
           ],
         ),
       ),

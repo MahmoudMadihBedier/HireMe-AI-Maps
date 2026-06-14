@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class ApplicationListController extends GetxController {
   final isLoading = true.obs;
   final isJobsLoading = true.obs;
   final isDeleting = false.obs;
+  final isRanking = false.obs;
 
   final jobsCount = 0.obs;
   final applicantsCount = 0.obs;
@@ -33,6 +35,7 @@ class ApplicationListController extends GetxController {
   final SupabaseClient _supabase = Supabase.instance.client;
 
   final _appsCountByJob = <String, int>{};
+  final _matchPercentages = <String, int>{};
 
   final _latestSeekerProfiles = <String, Map<String, dynamic>>{};
   final _seekerProfileSubscriptions =
@@ -228,6 +231,7 @@ class ApplicationListController extends GetxController {
                 seekerData['education'] ?? data['education'] ?? '',
               ),
               cvUrl: _firstNotEmpty([data['cvUrl']]),
+              matchPercentage: _matchPercentages[app.id],
               avatarUrl: _firstNotEmpty([
                 seekerData['profileImage'],
                 data['avatarUrl'],
@@ -245,6 +249,8 @@ class ApplicationListController extends GetxController {
     }
 
     final result = grouped.entries.map((entry) {
+      entry.value.sort((a, b) =>
+          (b.matchPercentage ?? 0).compareTo(a.matchPercentage ?? 0));
       return JobWithApplicants(
         jobId: entry.key,
         jobTitle: jobTitles[entry.key] ?? 'Unknown Job',
@@ -486,6 +492,72 @@ class ApplicationListController extends GetxController {
         'Failed to close job',
         snackPosition: SnackPosition.BOTTOM,
       );
+    }
+  }
+
+  Future<void> rankCandidatesWithAI(String jobId) async {
+    final companyJob = companyJobs.firstWhereOrNull((cj) => cj.id == jobId);
+    if (companyJob == null) return;
+
+    isRanking.value = true;
+
+    try {
+      final jobApps =
+          _currentApplications.where((app) => app.data['jobId'] == jobId);
+
+      final candidates = jobApps
+          .where((app) => (app.data['cvUrl']?.toString() ?? '').isNotEmpty)
+          .map((app) => {
+                'seekerId': _extractSeekerId(app.data),
+                'cvUrl': app.data['cvUrl'].toString(),
+              })
+          .toList();
+
+      if (candidates.isEmpty) {
+        Get.snackbar(
+          'No CVs',
+          'No candidates with CVs found for this job.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+
+      final jobDescription =
+          '${companyJob.description}\n\nRequirements:\n${companyJob.requirements}';
+
+      final callable =
+          FirebaseFunctions.instance.httpsCallable('rankCandidates');
+      final response = await callable.call({
+        'candidates': candidates,
+        'jobDescription': jobDescription,
+      });
+
+      final List<dynamic> rankings = response.data as List<dynamic>;
+
+      _matchPercentages.clear();
+
+      for (final r in rankings) {
+        final seekerId = r['seekerId'] as String;
+        final matchPct = (r['match_percentage'] as num).toInt();
+
+        try {
+          final matchingApp = jobApps.firstWhere(
+            (app) => _extractSeekerId(app.data) == seekerId,
+          );
+          _matchPercentages[matchingApp.id] = matchPct;
+        } catch (_) {}
+      }
+
+      _rebuildApplicationsList();
+    } catch (e) {
+      debugPrint('rankCandidatesWithAI error: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to rank candidates. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isRanking.value = false;
     }
   }
 

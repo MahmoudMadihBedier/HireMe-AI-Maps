@@ -1,7 +1,10 @@
 const { onDocumentCreated, onDocumentUpdated } = require('firebase-functions/v2/firestore');
 const { onValueCreated } = require('firebase-functions/v2/database');
+const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const logger = require('firebase-functions/logger');
 const admin = require('firebase-admin');
+const https = require('https');
+const Groq = require('groq-sdk');
 
 admin.initializeApp();
 
@@ -344,3 +347,174 @@ exports.onNewChatMessage = onValueCreated(
     }
   },
 );
+
+// ─────────────────────────────────────────────
+// Function 5: Analyze CV (callable)
+// ─────────────────────────────────────────────
+function downloadFile(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (response) => {
+      if (response.statusCode !== 200) {
+        reject(new Error(`Download failed with status ${response.statusCode}`));
+        return;
+      }
+      const chunks = [];
+      response.on('data', (chunk) => chunks.push(chunk));
+      response.on('end', () => resolve(Buffer.concat(chunks)));
+      response.on('error', reject);
+    }).on('error', reject);
+  });
+}
+
+// ─────────────────────────────────────────────
+// Function 6: Rank candidates (callable)
+// ─────────────────────────────────────────────
+exports.rankCandidates = onCall({ secrets: ['GROQ_API_KEY'], memory: '1GiB', timeoutSeconds: 120 }, async (request) => {
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  const { candidates, jobDescription } = request.data;
+
+  if (!candidates || !Array.isArray(candidates) || !jobDescription) {
+    throw new HttpsError('invalid-argument', 'candidates (array) and jobDescription (string) are required');
+  }
+
+  logger.info('rankCandidates received', {
+    seekerIds: candidates.map((c) => c.seekerId),
+    jobDescriptionLength: jobDescription.length,
+    candidateCount: candidates.length,
+  });
+
+  const results = await Promise.all(candidates.map(async (candidate) => {
+    const { seekerId, cvUrl } = candidate;
+
+    const hasCv = Boolean(cvUrl && cvUrl.toString().trim().length > 0);
+    logger.info(`rankCandidates processing candidate`, { seekerId, hasCv, cvUrlLength: cvUrl?.length ?? 0 });
+
+    if (!hasCv) {
+      logger.warn(`rankCandidates no CV for seeker ${seekerId}`);
+      return { seekerId, match_percentage: 0, strengths: [], weaknesses: [], suggestions: ['No CV provided'] };
+    }
+
+    try {
+      const pdfBuffer = await downloadFile(cvUrl);
+      const pdfParse = require('pdf-parse');
+      const pdfData = await pdfParse(pdfBuffer);
+      const cvText = pdfData.text.trim();
+
+      logger.info(`rankCandidates CV parsed for seeker ${seekerId}`, { textLength: cvText.length });
+
+      if (cvText.length < 100) {
+        logger.warn(`rankCandidates CV too short for seeker ${seekerId}`, { textLength: cvText.length });
+        return {
+          seekerId,
+          match_percentage: 0,
+          strengths: [],
+          weaknesses: ['CV could not be read. Please upload a text-based PDF.'],
+          suggestions: ['Upload a PDF that contains selectable text, not a scanned image.'],
+        };
+      }
+
+      const completion = await groq.chat.completions.create({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert CV analyzer. Analyze the CV against the job description and return a JSON object with: match_percentage (number 0-100), strengths (array of strings), weaknesses (array of strings), suggestions (array of strings). Respond with valid JSON only.',
+          },
+          {
+            role: 'user',
+            content: `CV TEXT:\n${cvText}\n\nJOB DESCRIPTION:\n${jobDescription}`,
+          },
+        ],
+        response_format: { type: 'json_object' },
+      });
+
+      const analysis = JSON.parse(completion.choices[0].message.content);
+
+      logger.info(`rankCandidates Groq result for seeker ${seekerId}`, {
+        match_percentage: analysis.match_percentage,
+        strengthsCount: analysis.strengths?.length ?? 0,
+        weaknessesCount: analysis.weaknesses?.length ?? 0,
+      });
+
+      return {
+        seekerId,
+        match_percentage: analysis.match_percentage,
+        strengths: analysis.strengths,
+        weaknesses: analysis.weaknesses,
+        suggestions: analysis.suggestions,
+      };
+    } catch (error) {
+      logger.error(`rankCandidates FAILED for seeker ${seekerId}: ${error.message}`, {
+        seekerId,
+        errorMessage: error.message,
+        errorStack: error.stack,
+      });
+      return {
+        seekerId,
+        match_percentage: 0,
+        strengths: [],
+        weaknesses: [],
+        suggestions: ['Analysis failed'],
+      };
+    }
+  }));
+
+  results.sort((a, b) => b.match_percentage - a.match_percentage);
+
+  logger.info('rankCandidates final sorted results', {
+    results: results.map((r) => ({ seekerId: r.seekerId, match_percentage: r.match_percentage })),
+  });
+
+  return results;
+});
+
+exports.analyzeCv = onCall({ secrets: ['GROQ_API_KEY'], memory: '1GiB', timeoutSeconds: 120 }, async (request) => {
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  const { cvUrl, jobDescription } = request.data;
+
+  if (!cvUrl || !jobDescription) {
+    throw new HttpsError('invalid-argument', 'cvUrl and jobDescription are required');
+  }
+
+  try {
+    const pdfBuffer = await downloadFile(cvUrl);
+    const pdfParse = require('pdf-parse');
+    const pdfData = await pdfParse(pdfBuffer);
+    const cvText = pdfData.text.trim();
+
+    if (cvText.length < 100) {
+      logger.warn('analyzeCv CV too short', { textLength: cvText.length });
+      throw new HttpsError(
+        'invalid-argument',
+        'CV could not be read. Please upload a text-based PDF that contains selectable text, not a scanned image.',
+      );
+    }
+
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert CV analyzer. Analyze the CV against the job description and return a JSON object with: match_percentage (number 0-100), strengths (array of strings), weaknesses (array of strings), suggestions (array of strings). Respond with valid JSON only.',
+        },
+        {
+          role: 'user',
+          content: `CV TEXT:\n${cvText}\n\nJOB DESCRIPTION:\n${jobDescription}`,
+        },
+      ],
+      response_format: { type: 'json_object' },
+    });
+
+    const analysis = JSON.parse(completion.choices[0].message.content);
+
+    return {
+      match_percentage: analysis.match_percentage,
+      strengths: analysis.strengths,
+      weaknesses: analysis.weaknesses,
+      suggestions: analysis.suggestions,
+    };
+  } catch (error) {
+    logger.error('analyzeCv failed:', error);
+    throw new HttpsError('internal', `Failed to analyze CV: ${error.message}`);
+  }
+});

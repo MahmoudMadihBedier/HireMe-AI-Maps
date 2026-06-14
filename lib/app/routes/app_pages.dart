@@ -49,6 +49,8 @@ import '../modules/job_seeker/jobseeker_main_wrapper/bindings/main_wrapper_bindi
 import '../modules/job_seeker/jobseeker_main_wrapper/views/main_wrapper_view.dart';
 import '../modules/job_seeker/my_applications/bindings/job_seeker_my_applications_binding.dart';
 import '../modules/job_seeker/my_applications/views/job_seeker_my_applications_view.dart';
+import '../modules/job_seeker/cv_analysis/bindings/cv_analysis_binding.dart';
+import '../modules/job_seeker/cv_analysis/views/cv_analysis_view.dart';
 import '../modules/job_seeker/notifications/bindings/job_seeker_notifications_binding.dart';
 import '../modules/job_seeker/notifications/views/job_seeker_notifications_view.dart';
 import '../modules/job_seeker/profile/bindings/profile_binding.dart';
@@ -151,6 +153,14 @@ class AppPages {
       name: Routes.jobSeekerNotifications,
       page: () => const JobSeekerNotificationsView(),
       binding: JobSeekerNotificationsBinding(),
+      middlewares: [
+        RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
+      ],
+    ),
+    GetPage(
+      name: Routes.jobSeekerCvAnalysis,
+      page: () => const CvAnalysisView(),
+      binding: CvAnalysisBinding(),
       middlewares: [
         RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
       ],
