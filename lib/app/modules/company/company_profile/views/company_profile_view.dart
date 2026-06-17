@@ -477,7 +477,10 @@ class CompanyProfileView extends GetView<CompanyProfileController> {
       width: double.infinity,
       height: 48,
       child: ElevatedButton.icon(
-        onPressed: () => Get.toNamed(Routes.COMPANY_MAP),
+        onPressed: () async {
+          await Get.toNamed(Routes.COMPANY_MAP);
+          controller.refreshProfile();
+        },
         icon: const Icon(Icons.map_rounded, color: Colors.white, size: 20),
         label: const Text(
           'View on Map',
@@ -576,6 +579,17 @@ class CompanyProfileView extends GetView<CompanyProfileController> {
                 label: 'Location',
                 controller: controller.locationController,
                 icon: Icons.location_on_outlined,
+                readOnly: true,
+                hintText: 'Set from map',
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.map_rounded, color: AppColor.kblue),
+                  onPressed: () async {
+                    await Get.toNamed(Routes.COMPANY_MAP);
+                    controller.refreshProfile();
+                    controller.locationController.text =
+                        controller.location.value;
+                  },
+                ),
               ),
               const SizedBox(height: 12),
               _editField(
@@ -644,14 +658,20 @@ class CompanyProfileView extends GetView<CompanyProfileController> {
     required IconData icon,
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
+    bool readOnly = false,
+    String? hintText,
+    Widget? suffixIcon,
   }) {
     return TextField(
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
+      readOnly: readOnly,
       decoration: InputDecoration(
         labelText: label,
+        hintText: hintText,
         prefixIcon: Icon(icon, color: AppColor.kblue, size: 20),
+        suffixIcon: suffixIcon,
         filled: true,
         fillColor: const Color(0xffF5F7FA),
         contentPadding: const EdgeInsets.symmetric(

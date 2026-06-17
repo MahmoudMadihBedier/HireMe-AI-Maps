@@ -93,6 +93,7 @@ class JobSeekerDashboardView extends GetView<JobSeekerDashboardController> {
                           job: job,
                           isSaved: controller.isJobSaved(job.id),
                           onSaveTap: () => controller.toggleSaveJob(job.id),
+                          distance: controller.jobDistances[job.companyId],
                         ),
                       );
                     },

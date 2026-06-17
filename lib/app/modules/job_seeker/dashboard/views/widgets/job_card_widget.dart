@@ -10,12 +10,14 @@ class JobCardWidget extends StatelessWidget {
   final JobModel job;
   final bool isSaved;
   final VoidCallback onSaveTap;
+  final double? distance;
 
   const JobCardWidget({
     super.key,
     required this.job,
     required this.isSaved,
     required this.onSaveTap,
+    this.distance,
   });
 
   @override
@@ -89,6 +91,24 @@ class JobCardWidget extends StatelessWidget {
                 ),
               ],
             ),
+
+            if (distance != null) ...[
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(
+                    Icons.straighten_rounded,
+                    size: 16,
+                    color: AppColor.kblue,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    '$distance km away',
+                    style: TextStyle(color: AppColor.greydark, fontSize: 12),
+                  ),
+                ],
+              ),
+            ],
 
             const SizedBox(height: 6),
 

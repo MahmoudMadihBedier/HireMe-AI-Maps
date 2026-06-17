@@ -13,36 +13,32 @@ class CompanyMapView extends GetView<CompanyMapController> {
       appBar: AppBar(
         title: const Text('Select Location'),
         actions: [
-          Obx(
-            () => controller.hasSelection
-                ? IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: controller.resetLocation,
-                  )
-                : const SizedBox(),
-          ),
+          Obx(() {
+            if (controller.isEditMode.value) {
+              return TextButton(
+                onPressed: controller.cancelEdit,
+                child: const Text('Cancel'),
+              );
+            }
+            return IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: controller.enterEditMode,
+              tooltip: 'Edit Location',
+            );
+          }),
         ],
       ),
       body: Stack(
         children: [
           Obx(
             () => GoogleMap(
-              onMapCreated: (map) => controller.mapController = map,
+              onMapCreated: controller.onMapCreated,
               initialCameraPosition: CameraPosition(
                 target: controller.cameraPosition.value,
                 zoom: 12,
               ),
               onTap: controller.onMapTap,
-              markers: controller.selectedLocation.value != null
-                  ? {
-                      Marker(
-                        markerId: const MarkerId('selected'),
-                        position: controller.selectedLocation.value!,
-                        infoWindow:
-                            const InfoWindow(title: 'Company Location'),
-                      ),
-                    }
-                  : {},
+              markers: _buildMarkers(),
             ),
           ),
           if (controller.isLoading.value)
@@ -51,17 +47,44 @@ class CompanyMapView extends GetView<CompanyMapController> {
             left: 16,
             right: 16,
             bottom: 24,
-            child: Obx(
-              () => ElevatedButton(
-                onPressed: controller.selectedLocation.value != null
-                    ? controller.saveLocation
-                    : null,
-                child: const Text('Save Location'),
-              ),
-            ),
+            child: Obx(() {
+              if (controller.isEditMode.value &&
+                  controller.selectedLocation.value != null) {
+                return ElevatedButton(
+                  onPressed: controller.saveLocation,
+                  child: const Text('Save Location'),
+                );
+              }
+              return const SizedBox.shrink();
+            }),
           ),
         ],
       ),
     );
+  }
+
+  Set<Marker> _buildMarkers() {
+    final markers = <Marker>{};
+    if (controller.savedLocation.value != null) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('saved'),
+          position: controller.savedLocation.value!,
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueAzure),
+          infoWindow: InfoWindow(title: controller.companyName.value),
+        ),
+      );
+    }
+    if (controller.isEditMode.value &&
+        controller.selectedLocation.value != null) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('selected'),
+          position: controller.selectedLocation.value!,
+        ),
+      );
+    }
+    return markers;
   }
 }
