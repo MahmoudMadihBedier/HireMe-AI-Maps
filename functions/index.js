@@ -367,6 +367,30 @@ function downloadFile(url) {
 }
 
 // ─────────────────────────────────────────────
+// Shared helper: extract text from PDF via Document AI OCR
+// ─────────────────────────────────────────────
+async function extractTextFromPdf(pdfBuffer) {
+  const { DocumentProcessorServiceClient } = require('@google-cloud/documentai').v1;
+  const client = new DocumentProcessorServiceClient();
+  const processorName = 'projects/429003921296/locations/us/processors/f58882556c285858';
+  const request = {
+    name: processorName,
+    rawDocument: {
+      content: pdfBuffer.toString('base64'),
+      mimeType: 'application/pdf',
+    },
+  };
+  const [result] = await client.processDocument(request);
+  const text = (result.document.text || '').trim();
+
+  if (text.length < 100) {
+    throw new Error('CV could not be read. Please upload a text-based PDF that contains selectable text, not a scanned image.');
+  }
+
+  return text;
+}
+
+// ─────────────────────────────────────────────
 // Function 6: Rank candidates (callable)
 // ─────────────────────────────────────────────
 exports.rankCandidates = onCall({ secrets: ['GROQ_API_KEY'], memory: '1GiB', timeoutSeconds: 120 }, async (request) => {
@@ -396,22 +420,9 @@ exports.rankCandidates = onCall({ secrets: ['GROQ_API_KEY'], memory: '1GiB', tim
 
     try {
       const pdfBuffer = await downloadFile(cvUrl);
-      const pdfParse = require('pdf-parse');
-      const pdfData = await pdfParse(pdfBuffer);
-      const cvText = pdfData.text.trim();
+      const cvText = await extractTextFromPdf(pdfBuffer);
 
       logger.info(`rankCandidates CV parsed for seeker ${seekerId}`, { textLength: cvText.length });
-
-      if (cvText.length < 100) {
-        logger.warn(`rankCandidates CV too short for seeker ${seekerId}`, { textLength: cvText.length });
-        return {
-          seekerId,
-          match_percentage: 0,
-          strengths: [],
-          weaknesses: ['CV could not be read. Please upload a text-based PDF.'],
-          suggestions: ['Upload a PDF that contains selectable text, not a scanned image.'],
-        };
-      }
 
       const completion = await groq.chat.completions.create({
         model: 'llama-3.3-70b-versatile',
@@ -478,17 +489,7 @@ exports.analyzeCv = onCall({ secrets: ['GROQ_API_KEY'], memory: '1GiB', timeoutS
 
   try {
     const pdfBuffer = await downloadFile(cvUrl);
-    const pdfParse = require('pdf-parse');
-    const pdfData = await pdfParse(pdfBuffer);
-    const cvText = pdfData.text.trim();
-
-    if (cvText.length < 100) {
-      logger.warn('analyzeCv CV too short', { textLength: cvText.length });
-      throw new HttpsError(
-        'invalid-argument',
-        'CV could not be read. Please upload a text-based PDF that contains selectable text, not a scanned image.',
-      );
-    }
+    const cvText = await extractTextFromPdf(pdfBuffer);
 
     const completion = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',

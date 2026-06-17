@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/cv_analysis_result.dart';
 
 class CvAnalysisController extends GetxController {
@@ -19,7 +19,7 @@ class CvAnalysisController extends GetxController {
   final cvFilePath = ''.obs;
 
   final _auth = FirebaseAuth.instance;
-  final _supabase = Supabase.instance.client;
+  final _storage = FirebaseStorage.instance;
 
   CvAnalysisController({
     required this.jobDescription,
@@ -55,9 +55,10 @@ class CvAnalysisController extends GetxController {
       final fileName =
           '${uid}_${DateTime.now().millisecondsSinceEpoch}_${cvFileName.value}';
 
-      await _supabase.storage.from('cv').upload(fileName, file);
+      final ref = _storage.ref('cv/$fileName');
+      await ref.putFile(file);
 
-      final cvUrl = _supabase.storage.from('cv').getPublicUrl(fileName);
+      final cvUrl = await ref.getDownloadURL();
 
       await analyzeCV(cvUrl);
     } catch (e) {

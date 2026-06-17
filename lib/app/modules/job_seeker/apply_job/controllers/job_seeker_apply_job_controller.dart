@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/models/job_model.dart';
 import 'package:hire_me/app/routes/app_pages.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class JobSeekerApplyJobController extends GetxController {
   final nameController = TextEditingController();
@@ -19,7 +19,7 @@ class JobSeekerApplyJobController extends GetxController {
 
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  final _supabase = Supabase.instance.client;
+  final _storage = FirebaseStorage.instance;
 
   JobModel? get job {
     final args = Get.arguments;
@@ -145,9 +145,10 @@ class JobSeekerApplyJobController extends GetxController {
     final fileName =
         '${uid}_${DateTime.now().millisecondsSinceEpoch}_${cvFileName.value}';
 
-    await _supabase.storage.from('cv').upload(fileName, file);
+    final ref = _storage.ref('cv/$fileName');
+    await ref.putFile(file);
 
-    return _supabase.storage.from('cv').getPublicUrl(fileName);
+    return ref.getDownloadURL();
   }
 
   Future<void> _saveApplication({
