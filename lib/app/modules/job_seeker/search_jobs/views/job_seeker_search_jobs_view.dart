@@ -39,41 +39,91 @@ class JobSeekerSearchJobsView extends GetView<JobSeekerSearchJobsController> {
           children: [
             _buildSearchBox(),
 
-            Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return Center(
-                    child: CircularProgressIndicator(color: AppColor.kblue),
-                  );
-                }
-
-                if (controller.searchResults.isEmpty) {
-                  return _emptyState();
-                }
-
-                return RefreshIndicator(
-                  color: AppColor.kblue,
-                  onRefresh: controller.refreshSearch,
-                  child: ListView.builder(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.only(top: 12, bottom: 24),
-                    itemCount: controller.searchResults.length,
-                    itemBuilder: (context, index) {
-                      final job = controller.searchResults[index];
-
-                      return Obx(
-                        () => JobCardWidget(
-                          job: job,
-                          isSaved: controller.isJobSaved(job.id),
-                          onSaveTap: () => controller.toggleSaveJob(job.id),
-                          distance: controller.jobDistances[job.companyId],
+              Expanded(
+                child: Column(
+                  children: [
+                    Obx(
+                      () => Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+                        child: Row(
+                          children: [
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: controller.toggleSortByDistance,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: controller.sortByDistance.value
+                                      ? AppColor.kblue
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: AppColor.kblue,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  'Nearest',
+                                  style: TextStyle(
+                                    color: controller.sortByDistance.value
+                                        ? AppColor.kwhite
+                                        : AppColor.kblue,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                  ),
-                );
-              }),
-            ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: Obx(() {
+                        if (controller.isLoading.value) {
+                          return Center(
+                            child: CircularProgressIndicator(
+                              color: AppColor.kblue,
+                            ),
+                          );
+                        }
+
+                        if (controller.searchResults.isEmpty) {
+                          return _emptyState();
+                        }
+
+                        return RefreshIndicator(
+                          color: AppColor.kblue,
+                          onRefresh: controller.refreshSearch,
+                          child: ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.only(top: 12, bottom: 24),
+                            itemCount: controller.searchResults.length,
+                            itemBuilder: (context, index) {
+                              final job = controller.searchResults[index];
+
+                              return Obx(
+                                () => JobCardWidget(
+                                  job: job,
+                                  isSaved: controller.isJobSaved(job.id),
+                                  onSaveTap:
+                                      () => controller.toggleSaveJob(job.id),
+                                  distance:
+                                      controller.jobDistances[job.companyId],
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),

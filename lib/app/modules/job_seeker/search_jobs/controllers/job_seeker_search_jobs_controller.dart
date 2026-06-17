@@ -26,6 +26,8 @@ class JobSeekerSearchJobsController extends GetxController with DistanceMixin {
   final isLoading = true.obs;
   final searchQuery = ''.obs;
 
+  final sortByDistance = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -107,26 +109,41 @@ class JobSeekerSearchJobsController extends GetxController with DistanceMixin {
     applySearch();
   }
 
+  void toggleSortByDistance() {
+    sortByDistance.value = !sortByDistance.value;
+    applySearch();
+  }
+
   void applySearch() {
     final query = searchQuery.value.toLowerCase();
 
+    Iterable<JobModel> results;
+
     if (query.isEmpty) {
-      searchResults.value = allJobs;
-      return;
+      results = allJobs.toList();
+    } else {
+      results = allJobs.where((job) {
+        return job.title.toLowerCase().contains(query) ||
+            job.companyName.toLowerCase().contains(query) ||
+            job.mainFieldName.toLowerCase().contains(query) ||
+            job.location.toLowerCase().contains(query) ||
+            job.jobType.toLowerCase().contains(query) ||
+            job.workMode.toLowerCase().contains(query) ||
+            job.description.toLowerCase().contains(query) ||
+            job.requirements.toLowerCase().contains(query);
+      });
     }
 
-    final results = allJobs.where((job) {
-      return job.title.toLowerCase().contains(query) ||
-          job.companyName.toLowerCase().contains(query) ||
-          job.mainFieldName.toLowerCase().contains(query) ||
-          job.location.toLowerCase().contains(query) ||
-          job.jobType.toLowerCase().contains(query) ||
-          job.workMode.toLowerCase().contains(query) ||
-          job.description.toLowerCase().contains(query) ||
-          job.requirements.toLowerCase().contains(query);
-    }).toList();
+    if (sortByDistance.value && userPosition.value != null) {
+      results = results.toList()
+        ..sort((a, b) {
+          final distA = jobDistances[a.companyId] ?? double.infinity;
+          final distB = jobDistances[b.companyId] ?? double.infinity;
+          return distA.compareTo(distB);
+        });
+    }
 
-    searchResults.value = results;
+    searchResults.value = results.toList();
   }
 
   void clearSearch() {

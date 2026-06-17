@@ -53,16 +53,52 @@ class JobSeekerDashboardView extends GetView<JobSeekerDashboardController> {
                           color: AppColor.eblack,
                         ),
                       ),
-                      GestureDetector(
-                        onTap: controller.clearFilters,
-                        child: Text(
-                          'Clear',
-                          style: TextStyle(
-                            color: AppColor.kblue,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
+                      Row(
+                        children: [
+                          Obx(
+                            () => GestureDetector(
+                              onTap: controller.toggleSortByDistance,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: controller.sortByDistance.value
+                                      ? AppColor.kblue
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: AppColor.kblue,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  'Nearest',
+                                  style: TextStyle(
+                                    color: controller.sortByDistance.value
+                                        ? AppColor.kwhite
+                                        : AppColor.kblue,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: controller.clearFilters,
+                            child: Text(
+                              'Clear',
+                              style: TextStyle(
+                                color: AppColor.kblue,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

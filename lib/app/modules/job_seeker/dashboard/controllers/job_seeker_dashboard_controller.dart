@@ -47,6 +47,8 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
   final selectedWorkMode = 'all'.obs;
   final selectedLocation = 'all'.obs;
 
+  final sortByDistance = false.obs;
+
   final jobTypes = const ['all', 'FullTime', 'PartTime', 'Freelance'];
 
   final workModes = const ['all', 'OnSite', 'Remote', 'Hybrid'];
@@ -287,6 +289,11 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
     applyFilters();
   }
 
+  void toggleSortByDistance() {
+    sortByDistance.value = !sortByDistance.value;
+    applyFilters();
+  }
+
   void clearFilters() {
     selectedMainFieldId.value = 'all';
     selectedSubFieldId.value = 'all';
@@ -342,6 +349,15 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
             job.location.toLowerCase().contains(query) ||
             job.description.toLowerCase().contains(query);
       });
+    }
+
+    if (sortByDistance.value && userPosition.value != null) {
+      results = results.toList()
+        ..sort((a, b) {
+          final distA = jobDistances[a.companyId] ?? double.infinity;
+          final distB = jobDistances[b.companyId] ?? double.infinity;
+          return distA.compareTo(distB);
+        });
     }
 
     filteredJobs.value = results.toList();
