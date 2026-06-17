@@ -18,6 +18,33 @@ class CompanyMapController extends GetxController {
   final cameraPosition = LatLng(31.9, 35.2).obs;
   final isLoading = false.obs;
   GoogleMapController? mapController;
+
+  Set<Marker> get markers {
+    final result = <Marker>{};
+
+    if (savedLocation.value != null) {
+      result.add(
+        Marker(
+          markerId: const MarkerId('saved'),
+          position: savedLocation.value!,
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueAzure),
+          infoWindow: InfoWindow(title: companyName.value),
+        ),
+      );
+    }
+
+    if (isEditMode.value && selectedLocation.value != null) {
+      result.add(
+        Marker(
+          markerId: const MarkerId('selected'),
+          position: selectedLocation.value!,
+        ),
+      );
+    }
+
+    return result;
+  }
   Position? _devicePosition;
 
   @override

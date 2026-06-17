@@ -57,6 +57,8 @@ import '../modules/job_seeker/profile/bindings/profile_binding.dart';
 import '../modules/job_seeker/profile/views/profile_view.dart';
 import '../modules/job_seeker/saved_jobs/bindings/job_seeker_saved_jobs_binding.dart';
 import '../modules/job_seeker/saved_jobs/views/job_seeker_saved_jobs_view.dart';
+import '../modules/job_seeker/jobs_map/bindings/jobs_map_binding.dart';
+import '../modules/job_seeker/jobs_map/views/jobs_map_view.dart';
 import '../modules/job_seeker/search_jobs/bindings/job_seeker_search_jobs_binding.dart';
 import '../modules/job_seeker/search_jobs/views/job_seeker_search_jobs_view.dart';
 import '../modules/pdf_viewer/bindings/pdf_viewer_binding.dart';
@@ -209,6 +211,14 @@ class AppPages {
       name: Routes.mainWrapper,
       page: () => const MainWrapperView(),
       binding: MainWrapperBinding(),
+      middlewares: [
+        RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
+      ],
+    ),
+    GetPage(
+      name: Routes.jobsMap,
+      page: () => const JobsMapView(),
+      binding: JobsMapBinding(),
       middlewares: [
         RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
       ],

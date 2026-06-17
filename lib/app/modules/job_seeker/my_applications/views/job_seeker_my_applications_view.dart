@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_me/app/shared/widgets/curved_app_bar.dart';
+import 'package:hire_me/app/modules/job_seeker/dashboard/views/widgets/job_card_widget.dart';
 import 'package:hire_me/app/modules/job_seeker/my_applications/views/widgets/application_card.dart';
+import 'package:hire_me/app/modules/job_seeker/saved_jobs/controllers/job_seeker_saved_jobs_controller.dart';
 import 'package:hire_me/core/utils/app_color.dart';
+import 'package:hire_me/core/utils/app_text_style.dart';
 
 import '../controllers/job_seeker_my_applications_controller.dart';
 
@@ -27,6 +30,10 @@ class JobSeekerMyApplicationsView
             ),
             Expanded(
               child: Obx(() {
+                if (controller.isSavedJobsTab) {
+                  return _buildSavedJobsTab();
+                }
+
                 if (controller.isLoading.value) {
                   return Center(
                     child: CircularProgressIndicator(color: AppColor.kblue),
@@ -89,6 +96,69 @@ class JobSeekerMyApplicationsView
             );
           }).toList(),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSavedJobsTab() {
+    final savedCtrl = Get.find<JobSeekerSavedJobsController>();
+
+    if (savedCtrl.isLoading.value) {
+      return Center(
+        child: CircularProgressIndicator(color: AppColor.kblue),
+      );
+    }
+
+    if (savedCtrl.savedJobs.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          const SizedBox(height: 120),
+          Icon(
+            Icons.bookmark_border_rounded,
+            size: 90,
+            color: AppColor.greyLight,
+          ),
+          const SizedBox(height: 16),
+          Center(
+            child: Text(
+              'No saved jobs yet',
+              style: CustomTextstyle.poppinsSemiBold.copyWith(
+                fontSize: 17,
+                color: AppColor.eblack,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: Text(
+              'Jobs you save will appear here',
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColor.greyLight,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return RefreshIndicator(
+      color: AppColor.kblue,
+      onRefresh: savedCtrl.refreshSavedJobs,
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(top: 14, bottom: 24),
+        itemCount: savedCtrl.savedJobs.length,
+        itemBuilder: (context, index) {
+          final job = savedCtrl.savedJobs[index];
+          return JobCardWidget(
+            job: job,
+            isSaved: true,
+            onSaveTap: () => savedCtrl.removeSavedJob(job.id),
+          );
+        },
       ),
     );
   }

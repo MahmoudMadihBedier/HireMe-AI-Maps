@@ -26,44 +26,22 @@ class CompanyMapView extends GetView<CompanyMapController> {
                 zoom: 12,
               ),
               onTap: controller.onMapTap,
-              markers: _buildMarkers(),
+              markers: controller.markers,
             ),
           ),
-          if (controller.isLoading.value)
-            const Center(child: CircularProgressIndicator()),
-          Positioned(
+          Obx(
+            () => controller.isLoading.value
+                ? const Center(child: CircularProgressIndicator())
+                : const SizedBox.shrink(),
+          ),
+          const Positioned(
             left: 16,
             right: 16,
             bottom: 24,
-            child: const SaveLocationButton(),
+            child: SaveLocationButton(),
           ),
         ],
       ),
     );
-  }
-
-  Set<Marker> _buildMarkers() {
-    final markers = <Marker>{};
-    if (controller.savedLocation.value != null) {
-      markers.add(
-        Marker(
-          markerId: const MarkerId('saved'),
-          position: controller.savedLocation.value!,
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueAzure),
-          infoWindow: InfoWindow(title: controller.companyName.value),
-        ),
-      );
-    }
-    if (controller.isEditMode.value &&
-        controller.selectedLocation.value != null) {
-      markers.add(
-        Marker(
-          markerId: const MarkerId('selected'),
-          position: controller.selectedLocation.value!,
-        ),
-      );
-    }
-    return markers;
   }
 }

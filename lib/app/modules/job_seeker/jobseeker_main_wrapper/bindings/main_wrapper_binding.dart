@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import 'package:hire_me/app/modules/job_seeker/chat/controllers/chat_controller.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/controllers/job_seeker_dashboard_controller.dart';
+import 'package:hire_me/app/modules/job_seeker/jobs_map/controllers/jobs_map_controller.dart';
 import 'package:hire_me/app/modules/job_seeker/my_applications/controllers/job_seeker_my_applications_controller.dart';
 import 'package:hire_me/app/modules/job_seeker/saved_jobs/controllers/job_seeker_saved_jobs_controller.dart';
 import 'package:hire_me/app/modules/job_seeker/profile/controllers/profile_controller.dart';
@@ -18,6 +19,8 @@ class MainWrapperBinding extends Bindings {
     );
 
     Get.lazyPut<ChatController>(() => ChatController());
+
+    Get.lazyPut<JobsMapController>(() => JobsMapController());
 
     Get.lazyPut<JobSeekerMyApplicationsController>(
       () => JobSeekerMyApplicationsController(),

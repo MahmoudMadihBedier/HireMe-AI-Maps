@@ -9,7 +9,7 @@ class JobSeekerMyApplicationsController extends GetxController {
   final applications = <String, Map<String, dynamic>>{}.obs;
   final isLoading = false.obs;
   final selectedTab = 'All'.obs;
-  final tabs = ['All', 'Pending', 'Accepted', 'Rejected'];
+  final tabs = ['All', 'Pending', 'Accepted', 'Rejected', 'Saved Jobs'];
 
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
@@ -57,6 +57,8 @@ class JobSeekerMyApplicationsController extends GetxController {
       return status == filter;
     }).toList();
   }
+
+  bool get isSavedJobsTab => selectedTab.value == 'Saved Jobs';
 
   void selectTab(String tab) => selectedTab.value = tab;
 
