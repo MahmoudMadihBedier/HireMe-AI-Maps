@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 import 'package:hire_me/app/modules/job_seeker/dashboard/models/job_model.dart';
@@ -11,6 +12,7 @@ class JobSeekerJobDetailsController extends GetxController {
 
   final Rxn<JobModel> job = Rxn<JobModel>();
   final isSaved = false.obs;
+  final jobDistance = Rx<double?>(null);
 
   @override
   void onInit() {
@@ -21,6 +23,7 @@ class JobSeekerJobDetailsController extends GetxController {
     if (args is JobModel) {
       job.value = args;
       checkIfSaved();
+      _calculateDistance();
     } else {
       Get.snackbar('Error', 'Job data not found');
       Future.delayed(const Duration(milliseconds: 300), () {
@@ -44,6 +47,40 @@ class JobSeekerJobDetailsController extends GetxController {
     } catch (_) {
       isSaved.value = false;
     }
+  }
+
+  Future<void> _calculateDistance() async {
+    final currentJob = job.value;
+    if (currentJob == null || currentJob.companyId.isEmpty) return;
+
+    try {
+      final permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition();
+      final doc = await _firestore
+          .collection('companies')
+          .doc(currentJob.companyId)
+          .get();
+
+      if (!doc.exists) return;
+      final data = doc.data();
+      final lat = data?['latitude'];
+      final lng = data?['longitude'];
+      if (lat == null || lng == null) return;
+
+      final distance = Geolocator.distanceBetween(
+        position.latitude,
+        position.longitude,
+        (lat as num).toDouble(),
+        (lng as num).toDouble(),
+      );
+      jobDistance.value =
+          double.parse((distance / 1000).toStringAsFixed(1));
+    } catch (_) {}
   }
 
   Future<void> toggleSaveJob() async {

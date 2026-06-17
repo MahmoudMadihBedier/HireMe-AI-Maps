@@ -27,7 +27,6 @@ class CompanyMapController extends GetxController {
   }
 
   Future<void> _initLocation() async {
-    debugPrint('_initLocation start');
     final user = _auth.currentUser;
 
     try {
@@ -36,13 +35,9 @@ class CompanyMapController extends GetxController {
           status == LocationPermission.whileInUse) {
         final position = await Geolocator.getCurrentPosition();
         _devicePosition = position;
-        debugPrint(
-            'Device position: ${position.latitude}, ${position.longitude}');
         cameraPosition.value = LatLng(position.latitude, position.longitude);
       }
-    } catch (e) {
-      debugPrint('Get current location error: $e');
-    }
+    } catch (_) {}
 
     if (user != null) {
       try {
@@ -60,17 +55,9 @@ class CompanyMapController extends GetxController {
             savedLocation.value = LatLng(latDouble, lngDouble);
             companyName.value =
                 data['companyName']?.toString() ?? data['name']?.toString() ?? '';
-            debugPrint('Saved location from Firestore: $lat, $lng');
-          } else {
-            debugPrint('Saved location from Firestore: No saved location');
           }
-        } else {
-          debugPrint('Saved location from Firestore: No saved location');
         }
-      } catch (e) {
-        debugPrint('Load saved location error: $e');
-        debugPrint('Saved location from Firestore: No saved location');
-      }
+      } catch (_) {}
     }
 
     if (_devicePosition != null && mapController != null) {
@@ -80,7 +67,6 @@ class CompanyMapController extends GetxController {
           14,
         ),
       );
-      debugPrint('animateCamera called');
     }
   }
 
@@ -93,25 +79,21 @@ class CompanyMapController extends GetxController {
           14,
         ),
       );
-      debugPrint('animateCamera called');
     }
   }
 
   void onMapTap(LatLng position) {
     if (!isEditMode.value) return;
     selectedLocation.value = position;
-    debugPrint('onMapTap: ${position.latitude}, ${position.longitude}');
   }
 
   void enterEditMode() {
     isEditMode.value = true;
-    debugPrint('enterEditMode called');
   }
 
   void cancelEdit() {
     isEditMode.value = false;
     selectedLocation.value = null;
-    debugPrint('cancelEdit called');
   }
 
   void resetLocation() {
@@ -129,9 +111,7 @@ class CompanyMapController extends GetxController {
           place.country,
         ].where((s) => s != null && s.isNotEmpty).join(', ');
       }
-    } catch (e) {
-      debugPrint('Geocoding error: $e');
-    }
+    } catch (_) {}
     return '$lat, $lng';
   }
 
@@ -149,9 +129,6 @@ class CompanyMapController extends GetxController {
     final location = selectedLocation.value;
     if (location == null) return;
 
-    debugPrint(
-        'saveLocation called with: ${location.latitude}, ${location.longitude}');
-
     isLoading.value = true;
     try {
       final name = await _getLocationName(location.latitude, location.longitude);
@@ -165,7 +142,6 @@ class CompanyMapController extends GetxController {
       savedLocation.value = location;
       selectedLocation.value = null;
       isEditMode.value = false;
-      debugPrint('saveLocation success');
 
       Get.snackbar(
         'Success',
@@ -173,8 +149,7 @@ class CompanyMapController extends GetxController {
         backgroundColor: AppColor.ksuccess,
         colorText: Colors.white,
       );
-    } catch (e) {
-      debugPrint('Save location error: $e');
+    } catch (_) {
       Get.snackbar(
         'Error',
         'Failed to save location',

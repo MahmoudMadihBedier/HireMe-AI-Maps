@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../controllers/company_map_controller.dart';
+import 'widgets/map_app_bar_actions.dart';
+import 'widgets/save_location_button.dart';
 
 class CompanyMapView extends GetView<CompanyMapController> {
   const CompanyMapView({super.key});
@@ -12,21 +14,7 @@ class CompanyMapView extends GetView<CompanyMapController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select Location'),
-        actions: [
-          Obx(() {
-            if (controller.isEditMode.value) {
-              return TextButton(
-                onPressed: controller.cancelEdit,
-                child: const Text('Cancel'),
-              );
-            }
-            return IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: controller.enterEditMode,
-              tooltip: 'Edit Location',
-            );
-          }),
-        ],
+        actions: const [MapAppBarActions()],
       ),
       body: Stack(
         children: [
@@ -47,16 +35,7 @@ class CompanyMapView extends GetView<CompanyMapController> {
             left: 16,
             right: 16,
             bottom: 24,
-            child: Obx(() {
-              if (controller.isEditMode.value &&
-                  controller.selectedLocation.value != null) {
-                return ElevatedButton(
-                  onPressed: controller.saveLocation,
-                  child: const Text('Save Location'),
-                );
-              }
-              return const SizedBox.shrink();
-            }),
+            child: const SaveLocationButton(),
           ),
         ],
       ),
