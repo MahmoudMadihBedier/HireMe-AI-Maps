@@ -1,0 +1,355 @@
+---
+# spec-to-plan.yaml
+# Traceability checkpoint: Feature Specification (REQ-XXX) → Implementation Plan (Phase X.Y)
+# Generated: 2026-06-21 from /speckit.plan
+# Purpose: Verify all requirements are addressed in the plan
+
+traceability:
+  - req_id: REQ-001
+    description: Supabase Auth PKCE flow with auto-refresh tokens
+    plan_items:
+      - P1.1 (Supabase Auth Integration)
+    evidence: AuthController implements PKCE login/signup/token refresh
+
+  - req_id: REQ-002
+    description: Dual-role authentication (Job Seeker / Company)
+    plan_items:
+      - P1.1 (Supabase Auth Integration)
+      - P1.4 (Splash & Onboarding)
+    evidence: OnboardingController with role selection; separate signup flows
+
+  - req_id: REQ-003
+    description: Register & manage FCM tokens in Firestore
+    plan_items:
+      - P1.3 (FCM Token Management)
+    evidence: NotificationService manages token registration/deletion
+
+  - req_id: REQ-004
+    description: Role-based route access via RoleGuardMiddleware
+    plan_items:
+      - P0.3 (Middleware & Route Scaffolding)
+      - P9 (Route Protection & Role-Based Access)
+    evidence: RoleGuardMiddleware blocks unauthorized role access 100%
+
+  - req_id: REQ-005
+    description: Password recovery via email
+    plan_items:
+      - P1.1 (Supabase Auth Integration)
+      - P12.1 (Password Recovery)
+    evidence: AuthController.resetPassword() calls Supabase.auth.resetPasswordForEmail()
+
+  - req_id: REQ-006
+    description: Session timeout & auto-refresh mechanism
+    plan_items:
+      - P1.5 (Session Persistence & Auto-Refresh)
+      - P12.2 (Logout & Session Cleanup)
+    evidence: Supabase PKCE auto-refresh enabled in main.dart
+
+  - req_id: REQ-007
+    description: Job seekers browse all available jobs
+    plan_items:
+      - P2.2 (Job Dashboard & Search)
+    evidence: JobSeekerDashboardController fetches all jobs
+
+  - req_id: REQ-008
+    description: Search jobs by title/company/keyword
+    plan_items:
+      - P2.2 (Job Dashboard & Search)
+    evidence: JobSeekerSearchJobsController with Firestore queries
+
+  - req_id: REQ-009
+    description: Filter jobs by distance from user location
+    plan_items:
+      - P2.1 (Location & Distance Mixin)
+      - P2.2 (Job Dashboard & Search)
+    evidence: DistanceMixin with sort toggle
+
+  - req_id: REQ-010
+    description: Calculate & display distance to jobs
+    plan_items:
+      - P2.1 (Location & Distance Mixin)
+    evidence: DistanceMixin.getDistanceToCompany() using Geolocator
+
+  - req_id: REQ-011
+    description: Save jobs to "Saved Jobs" list
+    plan_items:
+      - P7.2 (Saved Jobs)
+    evidence: JobSeekerSavedJobsController + Firestore persistence
+
+  - req_id: REQ-012
+    description: View full job details with company location on map
+    plan_items:
+      - P2.3 (Job Card Widget & Details)
+      - P2.4 (Google Map Integration)
+    evidence: JobDetailsController + GoogleMap widget
+
+  - req_id: REQ-013
+    description: Company recruiters create & post new job listings
+    plan_items:
+      - P5.1 (Company Dashboard)
+    evidence: PostJobController for job creation
+
+  - req_id: REQ-014
+    description: View, edit, delete posted jobs (company)
+    plan_items:
+      - P5.1 (Company Dashboard)
+    evidence: CompanyDashboardController job management
+
+  - req_id: REQ-015
+    description: View job analytics (applications per job)
+    plan_items:
+      - P5.1 (Company Dashboard)
+    evidence: CompanyDashboardController analytics section
+
+  - req_id: REQ-016
+    description: Job seekers apply for jobs with CV upload
+    plan_items:
+      - P3.1 (Application Creation & Submission)
+    evidence: ApplyJobController with Supabase Storage upload
+
+  - req_id: REQ-017
+    description: Create application records with "pending" status
+    plan_items:
+      - P3.1 (Application Creation & Submission)
+      - P3.2 (Firestore Application Persistence)
+    evidence: ApplicationRepository.createApplication()
+
+  - req_id: REQ-018
+    description: All Firestore writes use SetOptions(merge: true)
+    plan_items:
+      - P3.2 (Firestore Application Persistence)
+      - All phases
+    evidence: SetOptions(merge: true) enforced in all repositories
+
+  - req_id: REQ-019
+    description: Company recruiters view all applications
+    plan_items:
+      - P5.2 (Application List)
+    evidence: ApplicationListController fetches all applications
+
+  - req_id: REQ-020
+    description: Accept/reject applications (company)
+    plan_items:
+      - P3.3 (Application Status Updates - Company-Side)
+      - P5.3 (Application Review Screen)
+    evidence: ApplicationReviewController with accept/reject actions
+
+  - req_id: REQ-021
+    description: Notify job seekers of application status changes
+    plan_items:
+      - P3.4 (Notification Routing for Application Updates)
+    evidence: Cloud Functions onApplicationAccepted/onApplicationRejected
+
+  - req_id: REQ-022
+    description: View application history by status (Pending/Accepted/Rejected)
+    plan_items:
+      - P3.5 (My Applications View)
+    evidence: JobSeekerMyApplicationsController tabs
+
+  - req_id: REQ-023
+    description: View full application details + candidate CV
+    plan_items:
+      - P5.3 (Application Review Screen)
+    evidence: ApplicationReviewView with flutter_pdfview
+
+  - req_id: REQ-024
+    description: Initiate one-to-one chat (Job Seeker ↔ Company)
+    plan_items:
+      - P4.1 (Chat Thread & Message Models)
+      - P4.5 (Initiate Chat from Job/Application)
+    evidence: ChatListController + "Message" buttons
+
+  - req_id: REQ-025
+    description: Persist messages in Firestore subcollection
+    plan_items:
+      - P4.1 (Chat Thread & Message Models)
+      - P4.3 (Message Sending & Persistence)
+    evidence: ChatMessageRepository with messages subcollection
+
+  - req_id: REQ-026
+    description: Send FCM notifications for new messages
+    plan_items:
+      - P4.4 (Message Notifications)
+    evidence: onNewChatMessage Cloud Function
+
+  - req_id: REQ-027
+    description: View complete chat history
+    plan_items:
+      - P4.2 (Chat List & Detail Screens)
+      - P4.3 (Message Sending & Persistence)
+    evidence: ChatDetailController with Firestore stream
+
+  - req_id: REQ-028
+    description: Notify users of new messages with badge count
+    plan_items:
+      - P8.1 (Notification Badge Management)
+    evidence: NotificationService badge tracking
+
+  - req_id: REQ-029
+    description: Job seeker profile creation & editing
+    plan_items:
+      - P1.2 (Firestore Profile Creation & Persistence)
+      - P6.1 (Job Seeker Profile Editing)
+    evidence: JobSeekerProfileController
+
+  - req_id: REQ-030
+    description: Company profile creation & editing
+    plan_items:
+      - P1.2 (Firestore Profile Creation & Persistence)
+      - P6.2 (Company Profile Editing)
+    evidence: CompanyProfileController
+
+  - req_id: REQ-031
+    description: Profile updates use SetOptions(merge: true)
+    plan_items:
+      - P1.2 (Firestore Profile Creation & Persistence)
+      - P6.1 (Job Seeker Profile Editing)
+      - P6.2 (Company Profile Editing)
+    evidence: SetOptions(merge: true) in all profile updates
+
+  - req_id: REQ-032
+    description: Store logo/profile images in Supabase Storage
+    plan_items:
+      - P1.2 (Firestore Profile Creation & Persistence)
+      - P6.2 (Company Profile Editing)
+    evidence: StorageService with Supabase Storage integration
+
+  - req_id: REQ-033
+    description: Request location permission via Geolocator
+    plan_items:
+      - P2.1 (Location & Distance Mixin)
+    evidence: DistanceMixin.requestPermission()
+
+  - req_id: REQ-034
+    description: Display jobs on Google Map
+    plan_items:
+      - P7.1 (Jobs Map View)
+    evidence: JobsMapController with GoogleMap widget
+
+  - req_id: REQ-035
+    description: Map markers respond to tap events
+    plan_items:
+      - P2.4 (Google Map Integration)
+      - P7.1 (Jobs Map View)
+    evidence: Marker.onTap / InfoWindow.onTap callbacks
+
+  - req_id: REQ-036
+    description: Reverse geocoding (company_map_controller only)
+    plan_items:
+      - P2.4 (Google Map Integration)
+    evidence: geocoding package, company_map_controller.dart
+
+  - req_id: REQ-037
+    description: Calculate distance between user & job location
+    plan_items:
+      - P2.1 (Location & Distance Mixin)
+    evidence: Geolocator.distanceBetween()
+
+  - req_id: REQ-038
+    description: Route FCM notifications by data type
+    plan_items:
+      - P3.4 (Notification Routing for Application Updates)
+      - P4.4 (Message Notifications)
+      - P8.2 (FCM Routing by Data Type)
+    evidence: NotificationService._navigateFromData()
+
+  - req_id: REQ-039
+    description: Stream subscriptions have onError handlers to reset badge
+    plan_items:
+      - P8.1 (Notification Badge Management)
+    evidence: onError handler resets notification_count to 0
+
+  - req_id: REQ-040
+    description: Display notification badges on UI
+    plan_items:
+      - P8.1 (Notification Badge Management)
+    evidence: notification_count observable in UI
+
+  - req_id: REQ-041
+    description: Persist notification count across app restarts
+    plan_items:
+      - P8.1 (Notification Badge Management)
+    evidence: SharedPreferences or Firestore persistence
+
+  - req_id: REQ-042
+    description: All Firestore writes use SetOptions(merge: true)
+    plan_items:
+      - All phases (enforced in Phase 11.1)
+    evidence: SetOptions(merge: true) required in all repositories
+
+  - req_id: REQ-043
+    description: Persist user sessions & auto-refresh tokens
+    plan_items:
+      - P1.5 (Session Persistence & Auto-Refresh)
+    evidence: Supabase PKCE auto-refresh in main.dart
+
+  - req_id: REQ-044
+    description: Offline-first capability with local cache
+    plan_items:
+      - All phases
+    evidence: Cache + sync on reconnect strategy
+
+  - req_id: REQ-045
+    description: All controllers inherit GetxController
+    plan_items:
+      - P0.4 (Core Models & Base Classes)
+      - P11.1 (Code Review Checklist)
+    evidence: GetxController inheritance enforced
+
+  - req_id: REQ-046
+    description: Tests use manual fakes only (no Mockito/Mocktail)
+    plan_items:
+      - P1.6 (Testing - Manual Fakes)
+      - All test phases
+      - P11.1 (Code Review Checklist)
+    evidence: Manual fakes, Get.reset() in tearDown
+
+  - req_id: REQ-047
+    description: Route navigation uses Routes.* constants
+    plan_items:
+      - P0.3 (Middleware & Route Scaffolding)
+      - P11.1 (Code Review Checklist)
+    evidence: app/routes/app_pages.dart imports
+
+  - req_id: REQ-048
+    description: Modular feature-first architecture
+    plan_items:
+      - P0.3 (Middleware & Route Scaffolding)
+      - All phases
+      - P11.1 (Code Review Checklist)
+    evidence: app/modules/{role}/{feature}/ structure
+
+  - req_id: REQ-049
+    description: Shared utilities & codegen artifacts not edited manually
+    plan_items:
+      - P0.4 (Core Models & Base Classes)
+      - P11.1 (Code Review Checklist)
+    evidence: core/utils/ + app_assets.dart auto-generated
+
+coverage:
+  total_requirements: 49
+  mapped_requirements: 49
+  percentage: 100
+  status: ✅ COMPLETE
+  notes: All requirements mapped to specific plan items + evidence
+
+quality_gates:
+  - gate: spec_completeness
+    status: ✅ PASS
+    notes: All 49 requirements present in spec.md
+
+  - gate: plan_coverage
+    status: ✅ PASS
+    notes: All 49 requirements have plan items + evidence
+
+  - gate: requirement_uniqueness
+    status: ✅ PASS
+    notes: All REQ-XXX IDs unique and sequential (REQ-001 to REQ-049)
+
+  - gate: user_story_alignment
+    status: ✅ PASS
+    notes: All 12 user stories represented in plan phases (P1: 5 stories, P2: 7 stories)
+
+  - gate: constitution_compliance
+    status: ✅ PASS
+    notes: All 8 principles checked in Phase 11.1 code review

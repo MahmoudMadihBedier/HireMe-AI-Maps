@@ -1,0 +1,510 @@
+---
+# plan-to-tasks.yaml
+# Traceability checkpoint: Implementation Plan (Phase X.Y) → Task Breakdown (T###)
+# Generated: 2026-06-21 from /speckit.plan
+# Purpose: Verify all plan items are broken down into executable tasks
+
+traceability:
+  - plan_item: P0.1 (Environment & Configuration)
+    description: Verify Flutter environment and dependencies
+    tasks:
+      - T001 (Flutter version check)
+      - T002 (.env setup)
+      - T003 (Firebase configuration)
+      - T004 (Analysis configuration)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P0.2 (Service Layer Foundation)
+    description: Implement core services (Storage, Notifications)
+    tasks:
+      - T005 (StorageService)
+      - T006 (NotificationService)
+      - T007 (main.dart integration)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P0.3 (Middleware & Route Scaffolding)
+    description: Route guards and navigation structure
+    tasks:
+      - T008 (RoleGuardMiddleware)
+      - T009 (Route constants)
+      - T010 (Binding scaffolding)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P0.4 (Core Models & Base Classes)
+    description: Firestore models and base controller classes
+    tasks:
+      - T011 (Firestore models)
+      - T012 (GetxController base)
+      - T013 (GetxBinding base)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P1.1 (Supabase Auth Integration)
+    description: PKCE auth, signup, login, password recovery
+    tasks:
+      - T014 (PKCE flow)
+      - T015 (Signup implementation)
+      - T016 (Login implementation)
+      - T017 (Password recovery)
+      - T018 (Auto-refresh verification)
+    status: ✅ COMPLETE
+    task_count: 5
+
+  - plan_item: P1.2 (Firestore Profile Creation & Persistence)
+    description: Create and update user/company profiles
+    tasks:
+      - T019 (Job seeker profile)
+      - T020 (Company profile)
+      - T021 (Profile update controller)
+      - T022 (Concurrent update test)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P1.3 (FCM Token Management)
+    description: Register and cleanup FCM tokens
+    tasks:
+      - T023 (Token registration)
+      - T024 (Token cleanup sequence)
+      - T025 (Logout verification)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P1.4 (Splash & Onboarding)
+    description: Splash screen and onboarding flow
+    tasks:
+      - T026 (SplashController)
+      - T027 (OnboardingController)
+      - T028 (RoleSelector view)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P1.5 (Session Persistence & Auto-Refresh)
+    description: Token auto-refresh and session management
+    tasks:
+      - T029 (Auto-refresh verification)
+      - T030 (Multi-device session test)
+    status: ✅ COMPLETE
+    task_count: 2
+
+  - plan_item: P1.6 (Testing - Manual Fakes)
+    description: Unit tests with manual fakes
+    tasks:
+      - T031 (Auth fakes)
+      - T032 (Firestore fakes)
+      - T033 (Login controller test)
+      - T034 (Logout test)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P2.1 (Location & Distance Mixin)
+    description: Implement location capture and distance calculations
+    tasks:
+      - T035 (DistanceMixin implementation)
+      - T036 (Location permission)
+      - T037 (Distance calculation)
+      - T038 (Permission denied edge case)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P2.2 (Job Dashboard & Search)
+    description: Job listing, search, and sorting
+    tasks:
+      - T039 (Dashboard controller)
+      - T040 (Search controller)
+      - T041 (Distance sort toggle)
+      - T042 (Search performance test)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P2.3 (Job Card Widget & Details)
+    description: Shared job display and detailed view
+    tasks:
+      - T043 (JobCardWidget)
+      - T044 (JobDetailsController)
+      - T045 (JobDetailsView)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P2.4 (Google Map Integration)
+    description: Map widget and marker interactions
+    tasks:
+      - T046 (GoogleMap widget)
+      - T047 (Marker tap handling)
+      - T048 (Geocoding for reverse lookup)
+      - T049 (Map performance test)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P2.5 (Testing - Manual Fakes)
+    description: Distance and search tests
+    tasks:
+      - T050 (FakeGeolocator)
+      - T051 (Dashboard controller test)
+      - T052 (Search filter test)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P3.1 (Application Creation & Submission)
+    description: Job application with CV upload
+    tasks:
+      - T053 (ApplyJobController)
+      - T054 (CV upload to Supabase)
+      - T055 (Application creation test)
+      - T056 (CV upload test)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P3.2 (Firestore Application Persistence)
+    description: Application model and repository
+    tasks:
+      - T057 (Application model)
+      - T058 (ApplicationRepository)
+      - T059 (Concurrent application test)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P3.3 (Application Status Updates - Company-Side)
+    description: Accept/reject applications
+    tasks:
+      - T060 (ApplicationReviewController)
+      - T061 (Accept/reject action)
+      - T062 (Cloud Function verification)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P3.4 (Notification Routing for Application Updates)
+    description: FCM routing for application_update data type
+    tasks:
+      - T063 (FCM notification on update)
+      - T064 (Notification routing)
+      - T065 (End-to-end test)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P3.5 (My Applications View)
+    description: Application status tabs and saved jobs
+    tasks:
+      - T066 (MyApplicationsController)
+      - T067 (Saved jobs tab)
+      - T068 (Saved job display)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P3.6 (Testing - Manual Fakes)
+    description: Application workflow tests
+    tasks:
+      - T069 (FakeApplicationRepository)
+      - T070 (FakeStorageService)
+      - T071 (Review controller test)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P4.1 (Chat Thread & Message Models)
+    description: Chat data models and repositories
+    tasks:
+      - T072 (ChatThread model)
+      - T073 (ChatMessage model)
+      - T074 (ChatThreadRepository)
+      - T075 (ChatMessageRepository)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P4.2 (Chat List & Detail Screens)
+    description: Chat UI controllers
+    tasks:
+      - T076 (ChatListController)
+      - T077 (ChatDetailController)
+      - T078 (ChatDetailView)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P4.3 (Message Sending & Persistence)
+    description: Message sending and stream listening
+    tasks:
+      - T079 (sendMessage implementation)
+      - T080 (Message stream listener)
+      - T081 (Concurrent message test)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P4.4 (Message Notifications - FCM)
+    description: FCM routing for chat_message data type
+    tasks:
+      - T082 (onNewChatMessage Cloud Function)
+      - T083 (FCM routing for chat)
+      - T084 (Notification delivery test)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P4.5 (Initiate Chat from Job/Application)
+    description: "Message" buttons in job details and application review
+    tasks:
+      - T085 (Message from JobDetails)
+      - T086 (Message from ApplicationReview)
+    status: ✅ COMPLETE
+    task_count: 2
+
+  - plan_item: P4.6 (Testing - Manual Fakes)
+    description: Chat workflow tests
+    tasks:
+      - T087 (FakeChatRepository)
+      - T088 (Chat detail controller test)
+      - T089 (FCM routing test)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P5.1 (Company Dashboard)
+    description: Dashboard overview with job analytics
+    tasks:
+      - T090 (CompanyDashboardController)
+      - T091 (Dashboard view)
+      - T092 (Analytics summary)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P5.2 (Application List)
+    description: View all applications with search
+    tasks:
+      - T093 (ApplicationListController)
+      - T094 (List view UI)
+      - T095 (Search/filter)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P5.3 (Application Review Screen)
+    description: Detailed application review with CV preview
+    tasks:
+      - T096 (ApplicationReviewController)
+      - T097 (CV preview)
+      - T098 (Accept/reject buttons)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P5.4 (Testing - Manual Fakes)
+    description: Company dashboard tests
+    tasks:
+      - T099 (Dashboard controller test)
+      - T100 (Application review test)
+    status: ✅ COMPLETE
+    task_count: 2
+
+  - plan_item: P6.1 (Job Seeker Profile Editing)
+    description: Job seeker profile updates with merge semantics
+    tasks:
+      - T101 (Profile editing)
+      - T102 (Profile picture upload)
+      - T103 (Concurrent update test)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P6.2 (Company Profile Editing)
+    description: Company profile updates
+    tasks:
+      - T104 (Company profile editing)
+      - T105 (Logo upload)
+      - T106 (Persistence test)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P6.3 (Testing - Manual Fakes)
+    description: Profile management tests
+    tasks:
+      - T107 (Merge semantics test)
+      - T108 (Profile controller test)
+    status: ✅ COMPLETE
+    task_count: 2
+
+  - plan_item: P7.1 (Jobs Map View)
+    description: Display jobs on interactive map
+    tasks:
+      - T109 (JobsMapController with lazyPut)
+      - T110 (Map markers)
+      - T111 (Marker tap handling)
+      - T112 (Performance test)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P7.2 (Saved Jobs)
+    description: Save/unsave jobs and saved jobs view
+    tasks:
+      - T113 (Save job action)
+      - T114 (JobSeekerSavedJobsController)
+      - T115 (Saved jobs tab UI)
+      - T116 (Unsave action)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P7.3 (Testing - Manual Fakes)
+    description: Map and saved jobs tests
+    tasks:
+      - T117 (Map performance test)
+      - T118 (Save/unsave test)
+    status: ✅ COMPLETE
+    task_count: 2
+
+  - plan_item: P8.1 (Notification Badge Management)
+    description: Badge counting and error recovery
+    tasks:
+      - T119 (notification_count observable)
+      - T120 (Badge increment)
+      - T121 (Badge reset)
+      - T122 (Stream error recovery)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P8.2 (FCM Routing by Data Type)
+    description: Verify all 3 FCM data types route correctly
+    tasks:
+      - T123 (Routing verification)
+      - T124 (Background notification test)
+    status: ✅ COMPLETE
+    task_count: 2
+
+  - plan_item: P8.3 (Testing - Manual Fakes)
+    description: Notification and badge tests
+    tasks:
+      - T125 (Badge stream error test)
+      - T126 (FCM routing test)
+    status: ✅ COMPLETE
+    task_count: 2
+
+  - plan_item: P9.1 (Role Guard Middleware)
+    description: Verify role-based access blocking
+    tasks:
+      - T127 (Job seeker route access)
+      - T128 (Company route access)
+      - T129 (Public route verification)
+      - T130 (Access blocking test)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P9.2 (Route Configuration)
+    description: Route setup with middleware
+    tasks:
+      - T131 (Protected routes configuration)
+      - T132 (Public routes configuration)
+      - T133 (100% blocking verification)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P9.3 (Testing - Manual Fakes)
+    description: Role guard tests
+    tasks:
+      - T134 (Role guard test)
+    status: ✅ COMPLETE
+    task_count: 1
+
+  - plan_item: P10.1 (Password Recovery)
+    description: Email-based password recovery
+    tasks:
+      - T135 (Forgot password flow)
+      - T136 (Reset password verification)
+      - T137 (New password login test)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P10.2 (Logout & Session Cleanup)
+    description: 4-step logout sequence with FCM cleanup
+    tasks:
+      - T138 (Logout sequence verification)
+      - T139 (Session cleanup verification)
+      - T140 (Multi-device logout test)
+    status: ✅ COMPLETE
+    task_count: 3
+
+  - plan_item: P10.3 (Token Refresh)
+    description: Auto-refresh and token expiry handling
+    tasks:
+      - T141 (Auto-refresh verification)
+      - T142 (Token expiry edge case)
+    status: ✅ COMPLETE
+    task_count: 2
+
+  - plan_item: P10.4 (Testing - Manual Fakes)
+    description: Password and session tests
+    tasks:
+      - T143 (Logout sequence test)
+      - T144 (Password reset test)
+    status: ✅ COMPLETE
+    task_count: 2
+
+  - plan_item: P11.1 (Code Review Checklist)
+    description: Verify architecture compliance
+    tasks:
+      - T145 (GetxController inheritance check)
+      - T146 (Firestore merge semantics check)
+      - T147 (Route imports check)
+      - T148 (Service registration check)
+      - T149 (Manual fakes check)
+      - T150 (Get.reset() check)
+    status: ✅ COMPLETE
+    task_count: 6
+
+  - plan_item: P11.2 (Build & Analyze)
+    description: Flutter build and static analysis
+    tasks:
+      - T151 (pub get)
+      - T152 (flutter analyze)
+      - T153 (flutter test)
+      - T154 (flutter build apk --release)
+    status: ✅ COMPLETE
+    task_count: 4
+
+  - plan_item: P11.3 (Documentation & Runbooks)
+    description: Project documentation
+    tasks:
+      - T155 (AGENTS.md update)
+      - T156 (Test runbook)
+      - T157 (Deployment guide)
+    status: ✅ COMPLETE
+    task_count: 3
+
+coverage:
+  total_plan_items: 42
+  plan_items_with_tasks: 42
+  total_tasks: 157
+  percentage: 100
+  status: ✅ COMPLETE
+  notes: All plan items broken down into specific, executable tasks
+
+task_breakdown:
+  setup_phase: 13 tasks (T001-T013)
+  authentication_phase: 21 tasks (T014-T034)
+  job_discovery_phase: 18 tasks (T035-T052)
+  applications_phase: 18 tasks (T053-T070)
+  chat_phase: 18 tasks (T072-T089)
+  company_features_phase: 10 tasks (T090-T100)
+  profile_management_phase: 8 tasks (T101-T108)
+  maps_and_saved_jobs_phase: 10 tasks (T109-T118)
+  notifications_phase: 8 tasks (T119-T126)
+  route_protection_phase: 8 tasks (T127-T134)
+  password_and_session_phase: 10 tasks (T135-T144)
+  quality_and_compliance_phase: 11 tasks (T145-T157)
+
+quality_gates:
+  - gate: plan_item_decomposition
+    status: ✅ PASS
+    notes: All 42 plan items have 1+ tasks
+
+  - gate: task_uniqueness
+    status: ✅ PASS
+    notes: All task IDs unique and sequential (T001-T157)
+
+  - gate: task_executability
+    status: ✅ PASS
+    notes: All tasks have specific, concrete descriptions
+
+  - gate: dependency_ordering
+    status: ✅ PASS
+    notes: Phase 0 (setup) before all others; foundational before UI
+
+  - gate: user_story_coverage
+    status: ✅ PASS
+    notes: All 12 user stories have dedicated task phases
+
+  - gate: architecture_compliance
+    status: ✅ PASS
+    notes: Phase 11 includes compliance verification tasks

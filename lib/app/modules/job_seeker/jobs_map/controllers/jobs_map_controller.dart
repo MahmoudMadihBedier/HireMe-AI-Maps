@@ -14,6 +14,17 @@ class JobsMapController extends GetxController with DistanceMixin {
   final hasLocationPermission = false.obs;
   final companiesWithNoLocation = 0.obs;
 
+  LatLng get initialCameraTarget {
+    final position = userPosition.value;
+    if (position != null) {
+      return LatLng(position.latitude, position.longitude);
+    }
+
+    return companyLocations.values.isNotEmpty
+        ? companyLocations.values.first
+        : const LatLng(0, 0);
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -28,6 +39,8 @@ class JobsMapController extends GetxController with DistanceMixin {
           permission == LocationPermission.always) {
         userPosition.value = await Geolocator.getCurrentPosition();
         hasLocationPermission.value = true;
+      } else {
+        hasLocationPermission.value = false;
       }
     } catch (_) {
       hasLocationPermission.value = false;
