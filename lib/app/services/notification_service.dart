@@ -13,6 +13,7 @@ import 'storage_service.dart';
 class NotificationService extends GetxService {
   static final RxString currentScreen = ''.obs;
   final userPosition = Rx<Position?>(null);
+  final notificationCount = 0.obs;
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
@@ -107,7 +108,10 @@ class NotificationService extends GetxService {
   }
 
   void _listenToTokenRefresh() {
-    _messaging.onTokenRefresh.listen(_saveTokenToFirestore);
+    _messaging.onTokenRefresh.listen(
+      _saveTokenToFirestore,
+      onError: (_) => debugPrint('Token refresh stream error'),
+    );
   }
 
   Future<void> _saveTokenToFirestore(String token) async {
@@ -143,7 +147,10 @@ class NotificationService extends GetxService {
   }
 
   void _listenToForegroundMessages() {
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+    FirebaseMessaging.onMessage.listen(
+      _handleForegroundMessage,
+      onError: (_) => debugPrint('Foreground message stream error'),
+    );
   }
 
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
@@ -157,6 +164,8 @@ class NotificationService extends GetxService {
       if (type == 'chat_message' && screen == 'chat_details') return;
       if (type == 'application_update' && screen == 'notifications') return;
       if (type == 'new_application' && screen == 'notifications') return;
+
+      notificationCount.value++;
 
       final title = message.notification?.title ??
           message.data['title']?.toString() ??
@@ -195,6 +204,8 @@ class NotificationService extends GetxService {
     }
   }
 
+  void resetBadge() => notificationCount.value = 0;
+
   void _onNotificationTap(NotificationResponse response) {
     if (response.payload == null) return;
     try {
@@ -204,9 +215,12 @@ class NotificationService extends GetxService {
   }
 
   void _listenToMessageOpenedApp() {
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      _navigateFromData(message.data);
-    });
+    FirebaseMessaging.onMessageOpenedApp.listen(
+      (RemoteMessage message) {
+        _navigateFromData(message.data);
+      },
+      onError: (_) => debugPrint('Message opened app stream error'),
+    );
   }
 
   Future<void> _checkInitialMessage() async {
@@ -221,9 +235,10 @@ class NotificationService extends GetxService {
   void _navigateFromData(Map<String, dynamic> data) {
     final type = data['type'];
     debugPrint('🔵 Navigate from notification type: $type');
+    resetBadge();
     switch (type) {
       case 'application_update':
-        Get.toNamed(Routes.jobSeekerNotifications);
+        Get.toNamed(Routes.jobSeekerMyApplications);
         break;
       case 'new_application':
         Get.toNamed(Routes.applicationList);

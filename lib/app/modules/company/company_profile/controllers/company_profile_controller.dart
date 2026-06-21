@@ -132,25 +132,37 @@ class CompanyProfileController extends GetxController {
         .collection('jobs')
         .where('companyId', isEqualTo: uid)
         .snapshots()
-        .listen((snapshot) {
-          totalJobs.value = snapshot.docs.where((doc) {
-            final data = doc.data();
-            return data['isDeleted'] != true;
-          }).length;
-        });
+        .listen(
+          (snapshot) {
+            totalJobs.value = snapshot.docs.where((doc) {
+              final data = doc.data();
+              return data['isDeleted'] != true;
+            }).length;
+          },
+          onError: (_) {
+            if (_auth.currentUser == null) return;
+            Get.snackbar('Error', 'Failed to load job counts');
+          },
+        );
 
     _applicationsSub = _firestore
         .collection('applications')
         .where('companyId', isEqualTo: uid)
         .snapshots()
-        .listen((snapshot) {
-          totalApplicants.value = snapshot.docs.length;
+        .listen(
+          (snapshot) {
+            totalApplicants.value = snapshot.docs.length;
 
-          acceptedApplicants.value = snapshot.docs.where((doc) {
-            final status = doc.data()['status']?.toString().toLowerCase() ?? '';
-            return status == 'accepted';
-          }).length;
-        });
+            acceptedApplicants.value = snapshot.docs.where((doc) {
+              final status = doc.data()['status']?.toString().toLowerCase() ?? '';
+              return status == 'accepted';
+            }).length;
+          },
+          onError: (_) {
+            if (_auth.currentUser == null) return;
+            Get.snackbar('Error', 'Failed to load applicants');
+          },
+        );
   }
 
   Future<void> pickAndUploadCompanyLogo() async {

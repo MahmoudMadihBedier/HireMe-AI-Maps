@@ -32,7 +32,7 @@ class _FakeNotificationRouter {
 
     switch (type) {
       case 'application_update':
-        navigator.toNamed('/job-seeker/notifications');
+        navigator.toNamed('/job-seeker/my-applications');
         break;
       case 'new_application':
         navigator.toNamed('/application-list');
@@ -56,13 +56,13 @@ class _FakeNotificationRouter {
 
 void main() {
   group('FCM Routing', () {
-    test('routes application_update to job seeker notifications', () {
+    test('routes application_update to job seeker my applications', () {
       final navigator = _FakeNavigator();
       final router = _FakeNotificationRouter(navigator: navigator);
 
       router.navigateFromData({'type': 'application_update'});
 
-      expect(navigator.lastRoute, '/job-seeker/notifications');
+      expect(navigator.lastRoute, '/job-seeker/my-applications');
     });
 
     test('routes new_application to application list', () {

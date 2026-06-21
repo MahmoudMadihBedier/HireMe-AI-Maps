@@ -244,15 +244,21 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
         .collection('savedJobs')
         .where('seekerId', isEqualTo: uid)
         .snapshots()
-        .listen((snapshot) {
-          final ids = snapshot.docs
-              .map((doc) => doc.data()['jobId']?.toString() ?? '')
-              .where((id) => id.isNotEmpty)
-              .toSet();
+        .listen(
+          (snapshot) {
+            final ids = snapshot.docs
+                .map((doc) => doc.data()['jobId']?.toString() ?? '')
+                .where((id) => id.isNotEmpty)
+                .toSet();
 
-          savedJobIds.clear();
-          savedJobIds.addAll(ids);
-        });
+            savedJobIds.clear();
+            savedJobIds.addAll(ids);
+          },
+          onError: (_) {
+            if (_auth.currentUser == null) return;
+            Get.snackbar('Error', 'Failed to load saved jobs');
+          },
+        );
   }
 
   void onSearch(String value) {

@@ -385,9 +385,15 @@ class ApplicationListController extends GetxController {
             return data['isDeleted'] != true;
           }).length;
         })
-        .listen((jobCount) {
-          jobsCount.value = jobCount;
-        });
+        .listen(
+          (jobCount) {
+            jobsCount.value = jobCount;
+          },
+          onError: (_) {
+            if (_auth.currentUser == null) return;
+            Get.snackbar('Error', 'Failed to load job counts');
+          },
+        );
   }
 
   void _listenToAppsPerJobCount(String companyId) {
@@ -397,53 +403,59 @@ class ApplicationListController extends GetxController {
         .collection('applications')
         .where('companyId', isEqualTo: companyId)
         .snapshots()
-        .listen((snapshot) {
-          if (isClosed) return;
+        .listen(
+          (snapshot) {
+            if (isClosed) return;
 
-          final activeDocs = snapshot.docs.where((doc) {
-            final data = doc.data();
+            final activeDocs = snapshot.docs.where((doc) {
+              final data = doc.data();
 
-            return data['isDeleted'] != true && data['jobDeleted'] != true;
-          }).toList();
-
-          _appsCountByJob.clear();
-
-          for (final doc in activeDocs) {
-            final jobId = doc.data()['jobId']?.toString() ?? '';
-
-            if (jobId.isEmpty) continue;
-
-            _appsCountByJob[jobId] = (_appsCountByJob[jobId] ?? 0) + 1;
-          }
-
-          applicantsCount.value = activeDocs.length;
-
-          if (companyJobs.isNotEmpty) {
-            companyJobs.value = companyJobs.map((job) {
-              return CompanyJobModel(
-                id: job.id,
-                title: job.title,
-                location: job.location,
-                salary: job.salary,
-                jobType: job.jobType,
-                workMode: job.workMode,
-                status: job.status,
-                createdAt: job.createdAt,
-                mainFieldId: job.mainFieldId,
-                mainFieldName: job.mainFieldName,
-                applicantCount: _appsCountByJob[job.id] ?? 0,
-                minSalary: job.minSalary,
-                maxSalary: job.maxSalary,
-                description: job.description,
-                requirements: job.requirements,
-                isDeleted: job.isDeleted,
-                logoUrl: job.logoUrl,
-                mainFieldIconUrl: job.mainFieldIconUrl,
-                subFieldIconUrl: job.subFieldIconUrl,
-              );
+              return data['isDeleted'] != true && data['jobDeleted'] != true;
             }).toList();
-          }
-        });
+
+            _appsCountByJob.clear();
+
+            for (final doc in activeDocs) {
+              final jobId = doc.data()['jobId']?.toString() ?? '';
+
+              if (jobId.isEmpty) continue;
+
+              _appsCountByJob[jobId] = (_appsCountByJob[jobId] ?? 0) + 1;
+            }
+
+            applicantsCount.value = activeDocs.length;
+
+            if (companyJobs.isNotEmpty) {
+              companyJobs.value = companyJobs.map((job) {
+                return CompanyJobModel(
+                  id: job.id,
+                  title: job.title,
+                  location: job.location,
+                  salary: job.salary,
+                  jobType: job.jobType,
+                  workMode: job.workMode,
+                  status: job.status,
+                  createdAt: job.createdAt,
+                  mainFieldId: job.mainFieldId,
+                  mainFieldName: job.mainFieldName,
+                  applicantCount: _appsCountByJob[job.id] ?? 0,
+                  minSalary: job.minSalary,
+                  maxSalary: job.maxSalary,
+                  description: job.description,
+                  requirements: job.requirements,
+                  isDeleted: job.isDeleted,
+                  logoUrl: job.logoUrl,
+                  mainFieldIconUrl: job.mainFieldIconUrl,
+                  subFieldIconUrl: job.subFieldIconUrl,
+                );
+              }).toList();
+            }
+          },
+          onError: (_) {
+            if (_auth.currentUser == null) return;
+            Get.snackbar('Error', 'Failed to load applications');
+          },
+        );
   }
 
   void editJob(CompanyJobModel job) {
