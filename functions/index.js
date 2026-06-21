@@ -485,12 +485,21 @@ exports.rankCandidates = onCall({ secrets: ['GROQ_API_KEY'], memory: '1GiB', tim
 exports.getJobRecommendations = onCall({ secrets: ['GROQ_API_KEY'], memory: '1GiB', timeoutSeconds: 120 }, async (request) => {
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
   const { uid } = request.data;
+  const authUid = request.auth?.uid;
+
+  logger.info('getJobRecommendations called', { uid, authUid });
+
+  if (!authUid) {
+    throw new HttpsError('unauthenticated', 'Authentication required');
+  }
 
   if (!uid) {
     throw new HttpsError('invalid-argument', 'uid is required');
   }
 
-  logger.info('getJobRecommendations processing', { uid });
+  if (uid !== authUid) {
+    throw new HttpsError('permission-denied', 'uid does not match authenticated user');
+  }
 
   // Fetch user profile
   let userData;
@@ -510,7 +519,7 @@ exports.getJobRecommendations = onCall({ secrets: ['GROQ_API_KEY'], memory: '1Gi
   try {
     const jobsSnapshot = await db
       .collection('jobs')
-      .where('status', isEqualTo: 'Open')
+      .where('status', '==', 'Open')
       .get();
     jobs = jobsSnapshot.docs.map((doc) => ({ jobId: doc.id, ...doc.data() })).filter((j) => !j.isDeleted);
   } catch (err) {

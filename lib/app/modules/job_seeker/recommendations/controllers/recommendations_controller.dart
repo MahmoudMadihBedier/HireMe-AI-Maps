@@ -27,9 +27,9 @@ class RecommendationsController extends GetxController {
   final errorMessage = ''.obs;
 
   Future<void> fetchRecommendations() async {
-    final uid = _auth.currentUser?.uid;
-    if (uid == null) {
-      errorMessage.value = 'Please login to get recommendations';
+    final user = _auth.currentUser;
+    if (user == null) {
+      errorMessage.value = 'Not logged in';
       return;
     }
 
@@ -37,20 +37,25 @@ class RecommendationsController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
 
+      // Ensure fresh auth token before calling the function
+      await user.getIdToken(true);
+
+      final uid = user.uid;
+
       final result = await _functions
           .httpsCallable('getJobRecommendations')
           .call({'uid': uid});
 
-      final data = result.data as List<dynamic>;
+      final data = List<dynamic>.from(result.data as List);
       final dashboardCtrl = Get.find<JobSeekerDashboardController>();
       final allJobs = dashboardCtrl.allJobs;
 
       final mapped = <JobRecommendation>[];
       for (final item in data) {
-        final map = item as Map<String, dynamic>;
+        final map = Map<String, dynamic>.from(item as Map);
         final jobId = map['jobId'] as String? ?? '';
         final matchPercentage = map['matchPercentage'] as int? ?? 0;
-        final reasons = (map['reasons'] as List<dynamic>?)
+        final reasons = (map['reasons'] as List?)
                 ?.map((e) => e.toString())
                 .toList() ??
             <String>[];
@@ -69,8 +74,14 @@ class RecommendationsController extends GetxController {
       mapped.sort((a, b) => b.matchPercentage.compareTo(a.matchPercentage));
       recommendations.value = mapped;
     } on FirebaseFunctionsException catch (e) {
-      errorMessage.value = e.message ?? 'Failed to get recommendations';
-    } catch (e) {
+      print('RecommendationsController FirebaseFunctionsException: ${e.code} - ${e.message}');
+      if (e.code == 'unauthenticated') {
+        errorMessage.value = 'Session expired. Please login again.';
+      } else {
+        errorMessage.value = e.message ?? 'Failed to get recommendations';
+      }
+    } catch (e, stack) {
+      print('RecommendationsController error: $e\n$stack');
       errorMessage.value = 'Something went wrong';
     } finally {
       isLoading.value = false;
