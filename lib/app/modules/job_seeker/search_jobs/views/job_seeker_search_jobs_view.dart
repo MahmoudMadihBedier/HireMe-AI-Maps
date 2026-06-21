@@ -96,15 +96,42 @@ class JobSeekerSearchJobsView extends GetView<JobSeekerSearchJobsController> {
                           return _emptyState();
                         }
 
+                        final displayJobs = controller.searchResults.take(
+                          controller.displayCount.value,
+                        ).toList();
+
+                        final hasMore = controller.searchResults.length >
+                            controller.displayCount.value;
+
                         return RefreshIndicator(
                           color: AppColor.kblue,
                           onRefresh: controller.refreshSearch,
                           child: ListView.builder(
                             physics: const AlwaysScrollableScrollPhysics(),
                             padding: const EdgeInsets.only(top: 12, bottom: 24),
-                            itemCount: controller.searchResults.length,
+                            itemCount: displayJobs.length + (hasMore ? 1 : 0),
                             itemBuilder: (context, index) {
-                              final job = controller.searchResults[index];
+                              if (hasMore && index == displayJobs.length) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
+                                  child: Center(
+                                    child: TextButton(
+                                      onPressed: controller.loadMore,
+                                      child: Text(
+                                        'Load More (${controller.searchResults.length - controller.displayCount.value} remaining)',
+                                        style: TextStyle(
+                                          color: AppColor.kblue,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              final job = displayJobs[index];
 
                               return Obx(
                                 () => JobCardWidget(

@@ -49,6 +49,12 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
 
   final sortByDistance = false.obs;
 
+  final salaryMin = ''.obs;
+  final salaryMax = ''.obs;
+
+  final displayCount = 20.obs;
+  static const int pageSize = 20;
+
   final jobTypes = const ['all', 'FullTime', 'PartTime', 'Freelance'];
 
   final workModes = const ['all', 'OnSite', 'Remote', 'Hybrid'];
@@ -294,6 +300,20 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
     applyFilters();
   }
 
+  void setSalaryMin(String value) {
+    salaryMin.value = value.trim();
+    applyFilters();
+  }
+
+  void setSalaryMax(String value) {
+    salaryMax.value = value.trim();
+    applyFilters();
+  }
+
+  void loadMore() {
+    displayCount.value += pageSize;
+  }
+
   void toggleSortByDistance() {
     sortByDistance.value = !sortByDistance.value;
     applyFilters();
@@ -306,11 +326,14 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
     selectedWorkMode.value = 'all';
     selectedLocation.value = 'all';
     searchQuery.value = '';
+    salaryMin.value = '';
+    salaryMax.value = '';
 
     subFields.clear();
     _subFieldsSubscription?.cancel();
 
     searchTextController.clear();
+    displayCount.value = pageSize;
     applyFilters();
   }
 
@@ -356,6 +379,25 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
       });
     }
 
+    if (salaryMin.value.isNotEmpty || salaryMax.value.isNotEmpty) {
+      final minVal = num.tryParse(salaryMin.value);
+      final maxVal = num.tryParse(salaryMax.value);
+
+      results = results.where((job) {
+        if (minVal != null && maxVal != null) {
+          return (job.minSalary ?? 0) <= maxVal &&
+              (job.maxSalary ?? double.infinity) >= minVal;
+        }
+        if (minVal != null) {
+          return (job.maxSalary ?? double.infinity) >= minVal;
+        }
+        if (maxVal != null) {
+          return (job.minSalary ?? 0) <= maxVal;
+        }
+        return true;
+      });
+    }
+
     if (sortByDistance.value && userPosition.value != null) {
       results = results.toList()
         ..sort((a, b) {
@@ -380,6 +422,7 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
     }
 
     filteredJobs.value = results.toList();
+    displayCount.value = pageSize;
   }
 
   bool isJobSaved(String jobId) {

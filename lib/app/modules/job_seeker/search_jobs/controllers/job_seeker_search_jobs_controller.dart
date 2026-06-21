@@ -28,6 +28,12 @@ class JobSeekerSearchJobsController extends GetxController with DistanceMixin {
 
   final sortByDistance = false.obs;
 
+  final salaryMin = ''.obs;
+  final salaryMax = ''.obs;
+
+  final displayCount = 20.obs;
+  static const int pageSize = 20;
+
   @override
   void onInit() {
     super.onInit();
@@ -119,6 +125,20 @@ class JobSeekerSearchJobsController extends GetxController with DistanceMixin {
     applySearch();
   }
 
+  void setSalaryMin(String value) {
+    salaryMin.value = value.trim();
+    applySearch();
+  }
+
+  void setSalaryMax(String value) {
+    salaryMax.value = value.trim();
+    applySearch();
+  }
+
+  void loadMore() {
+    displayCount.value += pageSize;
+  }
+
   void applySearch() {
     final query = searchQuery.value.toLowerCase();
 
@@ -139,6 +159,25 @@ class JobSeekerSearchJobsController extends GetxController with DistanceMixin {
       });
     }
 
+    if (salaryMin.value.isNotEmpty || salaryMax.value.isNotEmpty) {
+      final minVal = num.tryParse(salaryMin.value);
+      final maxVal = num.tryParse(salaryMax.value);
+
+      results = results.where((job) {
+        if (minVal != null && maxVal != null) {
+          return (job.minSalary ?? 0) <= maxVal &&
+              (job.maxSalary ?? double.infinity) >= minVal;
+        }
+        if (minVal != null) {
+          return (job.maxSalary ?? double.infinity) >= minVal;
+        }
+        if (maxVal != null) {
+          return (job.minSalary ?? 0) <= maxVal;
+        }
+        return true;
+      });
+    }
+
     if (sortByDistance.value && userPosition.value != null) {
       results = results.toList()
         ..sort((a, b) {
@@ -149,11 +188,15 @@ class JobSeekerSearchJobsController extends GetxController with DistanceMixin {
     }
 
     searchResults.value = results.toList();
+    displayCount.value = pageSize;
   }
 
   void clearSearch() {
     searchController.clear();
     searchQuery.value = '';
+    salaryMin.value = '';
+    salaryMax.value = '';
+    displayCount.value = pageSize;
     searchResults.value = allJobs;
   }
 

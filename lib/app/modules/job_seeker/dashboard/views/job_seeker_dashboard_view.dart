@@ -116,23 +116,50 @@ class JobSeekerDashboardView extends GetView<JobSeekerDashboardController> {
                     return _buildEmptyState();
                   }
 
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.only(bottom: 24),
-                    itemCount: controller.filteredJobs.length,
-                    itemBuilder: (context, index) {
-                      final job = controller.filteredJobs[index];
+                  final displayJobs = controller.filteredJobs.take(
+                    controller.displayCount.value,
+                  ).toList();
 
-                      return Obx(
-                        () => JobCardWidget(
-                          job: job,
-                          isSaved: controller.isJobSaved(job.id),
-                          onSaveTap: () => controller.toggleSaveJob(job.id),
-                          distance: controller.jobDistances[job.companyId],
+                  final hasMore = controller.filteredJobs.length >
+                      controller.displayCount.value;
+
+                  return Column(
+                    children: [
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 8),
+                        itemCount: displayJobs.length,
+                        itemBuilder: (context, index) {
+                          final job = displayJobs[index];
+
+                          return Obx(
+                            () => JobCardWidget(
+                              job: job,
+                              isSaved: controller.isJobSaved(job.id),
+                              onSaveTap:
+                                  () => controller.toggleSaveJob(job.id),
+                              distance:
+                                  controller.jobDistances[job.companyId],
+                            ),
+                          );
+                        },
+                      ),
+                      if (hasMore)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: TextButton(
+                            onPressed: controller.loadMore,
+                            child: Text(
+                              'Load More (${controller.filteredJobs.length - controller.displayCount.value} remaining)',
+                              style: TextStyle(
+                                color: AppColor.kblue,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         ),
-                      );
-                    },
+                    ],
                   );
                 }),
               ],

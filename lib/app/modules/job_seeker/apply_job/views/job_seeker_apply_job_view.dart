@@ -42,6 +42,16 @@ class JobSeekerApplyJobView extends GetView<JobSeekerApplyJobController> {
             const SizedBox(height: 8),
             const ApplyCvUploadBox(),
 
+            const SizedBox(height: 20),
+
+            _buildLabel('Cover Letter'),
+            const SizedBox(height: 8),
+            _buildTextField(
+              controller: controller.coverLetterController,
+              maxLines: 6,
+              hintText: 'Tell the employer why you are a good fit for this position...',
+            ),
+
             const SizedBox(height: 40),
 
             const ApplyJobButton(),
@@ -82,12 +92,16 @@ class JobSeekerApplyJobView extends GetView<JobSeekerApplyJobController> {
     required TextEditingController controller,
     bool readOnly = false,
     TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+    String hintText = '',
   }) {
     return TextField(
       controller: controller,
       readOnly: readOnly,
       keyboardType: keyboardType,
+      maxLines: maxLines,
       decoration: InputDecoration(
+        hintText: hintText.isNotEmpty ? hintText : null,
         hintStyle: const TextStyle(color: Color(0xFF8A8A9A), fontSize: 14),
         filled: true,
         fillColor: readOnly ? const Color(0xFFEEEEEE) : Colors.white,

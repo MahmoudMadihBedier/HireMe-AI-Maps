@@ -219,9 +219,6 @@ class AppPages {
       name: Routes.jobsMap,
       page: () => const JobsMapView(),
       binding: JobsMapBinding(),
-      middlewares: [
-        RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
-      ],
     ),
     GetPage(
       name: Routes.applicationReview,

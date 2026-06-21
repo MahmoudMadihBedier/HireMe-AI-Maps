@@ -12,6 +12,7 @@ import 'package:hire_me/app/routes/app_pages.dart';
 class JobSeekerApplyJobController extends GetxController {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
+  final coverLetterController = TextEditingController();
 
   final isLoading = false.obs;
   final cvFileName = ''.obs;
@@ -124,6 +125,11 @@ class JobSeekerApplyJobController extends GetxController {
       return false;
     }
 
+    if (coverLetterController.text.trim().isEmpty) {
+      _showError('Please write a cover letter');
+      return false;
+    }
+
     return true;
   }
 
@@ -166,6 +172,7 @@ class JobSeekerApplyJobController extends GetxController {
       'seekerId': uid,
       'seekerName': nameController.text.trim(),
       'email': emailController.text.trim(),
+      'coverLetter': coverLetterController.text.trim(),
       'cvUrl': cvUrl,
       'status': 'pending',
       'createdAt': FieldValue.serverTimestamp(),
@@ -190,6 +197,7 @@ class JobSeekerApplyJobController extends GetxController {
   void onClose() {
     nameController.dispose();
     emailController.dispose();
+    coverLetterController.dispose();
     super.onClose();
   }
 }
