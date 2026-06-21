@@ -5,12 +5,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import '../routes/app_pages.dart';
 import 'storage_service.dart';
 
 class NotificationService extends GetxService {
   static final RxString currentScreen = ''.obs;
+  final userPosition = Rx<Position?>(null);
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
@@ -20,6 +22,7 @@ class NotificationService extends GetxService {
   Future<NotificationService> init() async {
     await _setupLocalNotifications();
     await _requestPermission();
+    await _requestLocationPermission();
     await _getFcmToken();
     _listenToTokenRefresh();
     _listenToForegroundMessages();
@@ -63,6 +66,20 @@ class NotificationService extends GetxService {
 
   Future<void> _requestPermission() async {
     await _messaging.requestPermission(alert: true, badge: true, sound: true);
+  }
+
+  Future<void> _requestLocationPermission() async {
+    final status = await Geolocator.checkPermission();
+    if (status == LocationPermission.always ||
+        status == LocationPermission.whileInUse) {
+      userPosition.value = await Geolocator.getCurrentPosition();
+      return;
+    }
+    final permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse) {
+      userPosition.value = await Geolocator.getCurrentPosition();
+    }
   }
 
   Future<void> _getFcmToken() async {

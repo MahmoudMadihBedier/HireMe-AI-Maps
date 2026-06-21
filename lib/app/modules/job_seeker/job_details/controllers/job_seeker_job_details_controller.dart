@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 import 'package:hire_me/app/modules/job_seeker/dashboard/models/job_model.dart';
+import 'package:hire_me/app/modules/job_seeker/shared/distance_mixin.dart';
 import 'package:hire_me/app/routes/app_pages.dart';
 
-class JobSeekerJobDetailsController extends GetxController {
+class JobSeekerJobDetailsController extends GetxController
+    with DistanceMixin {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -53,34 +54,7 @@ class JobSeekerJobDetailsController extends GetxController {
     final currentJob = job.value;
     if (currentJob == null || currentJob.companyId.isEmpty) return;
 
-    try {
-      final permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        return;
-      }
-
-      final position = await Geolocator.getCurrentPosition();
-      final doc = await _firestore
-          .collection('companies')
-          .doc(currentJob.companyId)
-          .get();
-
-      if (!doc.exists) return;
-      final data = doc.data();
-      final lat = data?['latitude'];
-      final lng = data?['longitude'];
-      if (lat == null || lng == null) return;
-
-      final distance = Geolocator.distanceBetween(
-        position.latitude,
-        position.longitude,
-        (lat as num).toDouble(),
-        (lng as num).toDouble(),
-      );
-      jobDistance.value =
-          double.parse((distance / 1000).toStringAsFixed(1));
-    } catch (_) {}
+    jobDistance.value = await getDistanceToCompany(currentJob.companyId);
   }
 
   Future<void> toggleSaveJob() async {

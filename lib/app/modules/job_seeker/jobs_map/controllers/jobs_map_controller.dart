@@ -28,23 +28,18 @@ class JobsMapController extends GetxController with DistanceMixin {
   @override
   void onInit() {
     super.onInit();
-    _requestLocationPermission();
-    _fetchJobs();
+    _initMap();
   }
 
-  Future<void> _requestLocationPermission() async {
-    try {
-      final permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.whileInUse ||
-          permission == LocationPermission.always) {
-        userPosition.value = await Geolocator.getCurrentPosition();
-        hasLocationPermission.value = true;
-      } else {
-        hasLocationPermission.value = false;
-      }
-    } catch (_) {
-      hasLocationPermission.value = false;
-    }
+  Future<void> _initMap() async {
+    _checkLocationPermission();
+    await _fetchJobs();
+  }
+
+  void _checkLocationPermission() async {
+    final status = await Geolocator.checkPermission();
+    hasLocationPermission.value = status == LocationPermission.always ||
+        status == LocationPermission.whileInUse;
   }
 
   Future<void> _fetchJobs() async {

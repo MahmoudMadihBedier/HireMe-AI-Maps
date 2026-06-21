@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 
 import 'package:hire_me/app/modules/job_seeker/dashboard/models/job_model.dart';
 import 'package:hire_me/app/modules/job_seeker/shared/distance_mixin.dart';
+import 'package:hire_me/app/services/notification_service.dart';
 
 class JobSeekerSearchJobsController extends GetxController with DistanceMixin {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -33,17 +33,16 @@ class JobSeekerSearchJobsController extends GetxController with DistanceMixin {
     super.onInit();
     listenToOpenJobs();
     listenToSavedJobs();
-    _requestLocationPermission();
+    _watchLocation();
   }
 
-  Future<void> _requestLocationPermission() async {
-    try {
-      final permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.whileInUse ||
-          permission == LocationPermission.always) {
-        userPosition.value = await Geolocator.getCurrentPosition();
+  void _watchLocation() {
+    ever(Get.find<NotificationService>().userPosition, (_) {
+      if (userPosition.value != null) {
+        updateJobDistancesFrom(allJobs);
+        applySearch();
       }
-    } catch (_) {}
+    });
   }
 
   void listenToOpenJobs() {

@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hire_me/app/services/notification_service.dart';
 import 'package:hire_me/core/utils/app_color.dart';
 
 class CompanyMapController extends GetxController {
@@ -55,16 +56,11 @@ class CompanyMapController extends GetxController {
 
   Future<void> _initLocation() async {
     final user = _auth.currentUser;
-
-    try {
-      final status = await Geolocator.requestPermission();
-      if (status == LocationPermission.always ||
-          status == LocationPermission.whileInUse) {
-        final position = await Geolocator.getCurrentPosition();
-        _devicePosition = position;
-        cameraPosition.value = LatLng(position.latitude, position.longitude);
-      }
-    } catch (_) {}
+    final sharedPos = Get.find<NotificationService>().userPosition.value;
+    if (sharedPos != null) {
+      _devicePosition = sharedPos;
+      cameraPosition.value = LatLng(sharedPos.latitude, sharedPos.longitude);
+    }
 
     if (user != null) {
       try {

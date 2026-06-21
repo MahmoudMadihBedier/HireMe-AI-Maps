@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/models/job_model.dart';
 import 'package:hire_me/app/modules/job_seeker/shared/distance_mixin.dart';
+import 'package:hire_me/app/services/notification_service.dart';
 
 class JobSeekerDashboardController extends GetxController with DistanceMixin {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -73,20 +73,16 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
     listenToOpenJobs();
     listenToSavedJobs();
     listenToNotificationBadge();
-    _requestLocationPermission();
+    _watchLocation();
   }
 
-  Future<void> _requestLocationPermission() async {
-    try {
-      final permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.whileInUse ||
-          permission == LocationPermission.always) {
-        userPosition.value = await Geolocator.getCurrentPosition();
-        if (allJobs.isNotEmpty) {
-          await updateJobDistancesFrom(allJobs);
-        }
+  void _watchLocation() {
+    ever(Get.find<NotificationService>().userPosition, (_) {
+      if (userPosition.value != null) {
+        updateJobDistancesFrom(allJobs);
+        applyFilters();
       }
-    } catch (_) {}
+    });
   }
 
   Future<void> fetchUserData() async {
@@ -203,7 +199,7 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
         .where('status', isEqualTo: 'Open')
         .snapshots()
         .listen(
-          (snapshot) {
+          (snapshot) async {
             final jobs = snapshot.docs
                 .map((doc) => JobModel.fromMap(doc.id, doc.data()))
                 .where((job) => !job.isDeleted)
@@ -221,8 +217,11 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
             });
 
             allJobs.value = jobs;
+            if (userPosition.value != null) {
+              await updateJobDistancesFrom(allJobs);
+            }
+
             applyFilters();
-            updateJobDistancesFrom(allJobs);
 
             isLoading.value = false;
           },
@@ -354,9 +353,23 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
     if (sortByDistance.value && userPosition.value != null) {
       results = results.toList()
         ..sort((a, b) {
-          final distA = jobDistances[a.companyId] ?? double.infinity;
-          final distB = jobDistances[b.companyId] ?? double.infinity;
-          return distA.compareTo(distB);
+          final distA = jobDistances[a.companyId];
+          final distB = jobDistances[b.companyId];
+
+          if (distA == null && distB == null) return 0;
+          if (distA == null) return 1;
+          if (distB == null) return -1;
+
+          final comparison = distA.compareTo(distB);
+          if (comparison != 0) return comparison;
+
+          final aDate = a.createdAt?.toDate();
+          final bDate = b.createdAt?.toDate();
+          if (aDate == null && bDate == null) return 0;
+          if (aDate == null) return 1;
+          if (bDate == null) return -1;
+
+          return bDate.compareTo(aDate);
         });
     }
 

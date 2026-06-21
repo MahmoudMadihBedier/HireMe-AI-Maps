@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:hire_me/app/services/notification_service.dart';
 
 import '../dashboard/models/job_model.dart';
 
 mixin DistanceMixin on GetxController {
-  final userPosition = Rx<Position?>(null);
+  Rx<Position?> get userPosition =>
+      Get.find<NotificationService>().userPosition;
   final jobDistances = RxMap<String, double?>();
 
   Future<double?> getDistanceToCompany(String companyId) async {

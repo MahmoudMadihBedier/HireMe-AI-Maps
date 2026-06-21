@@ -103,7 +103,13 @@ class JobCardWidget extends StatelessWidget {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    '$distance km away',
+                    distance! < 1
+                        ? 'Less than 1 km away'
+                        : distance! < 5
+                        ? '${distance!} km away · Nearby'
+                        : distance! < 20
+                        ? '${distance!} km away'
+                        : '${distance!} km away · Far',
                     style: TextStyle(color: AppColor.greydark, fontSize: 12),
                   ),
                 ],
