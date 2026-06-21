@@ -479,6 +479,127 @@ exports.rankCandidates = onCall({ secrets: ['GROQ_API_KEY'], memory: '1GiB', tim
   return results;
 });
 
+// ─────────────────────────────────────────────
+// Function 7: Get job recommendations (callable)
+// ─────────────────────────────────────────────
+exports.getJobRecommendations = onCall({ secrets: ['GROQ_API_KEY'], memory: '1GiB', timeoutSeconds: 120 }, async (request) => {
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  const { uid } = request.data;
+
+  if (!uid) {
+    throw new HttpsError('invalid-argument', 'uid is required');
+  }
+
+  logger.info('getJobRecommendations processing', { uid });
+
+  // Fetch user profile
+  let userData;
+  try {
+    const userDoc = await db.collection('users').doc(uid).get();
+    if (!userDoc.exists) {
+      throw new Error('User not found');
+    }
+    userData = userDoc.data();
+  } catch (err) {
+    logger.error('Failed to fetch user profile', err);
+    throw new HttpsError('not-found', 'User profile not found');
+  }
+
+  // Fetch all open jobs
+  let jobs = [];
+  try {
+    const jobsSnapshot = await db
+      .collection('jobs')
+      .where('status', isEqualTo: 'Open')
+      .get();
+    jobs = jobsSnapshot.docs.map((doc) => ({ jobId: doc.id, ...doc.data() })).filter((j) => !j.isDeleted);
+  } catch (err) {
+    logger.error('Failed to fetch jobs', err);
+    throw new HttpsError('internal', 'Failed to fetch jobs');
+  }
+
+  if (jobs.length === 0) {
+    logger.info('No open jobs found, returning empty recommendations');
+    return [];
+  }
+
+  // Build profile summary for the prompt
+  const skills = userData.skills || [];
+  const experience = userData.experience || [];
+  const education = userData.education || [];
+  const languages = userData.languages || [];
+  const about = userData.about || '';
+  const links = userData.links || [];
+
+  const profileSummary = `
+About: ${about}
+Skills: ${skills.join(', ')}
+Experience: ${experience.map((e) => `${e.position} at ${e.company}: ${e.description}`).join(' | ')}
+Education: ${education.map((e) => `${e.degree} in ${e.field} from ${e.school}`).join(' | ')}
+Languages: ${languages.map((l) => `${l.name} (${l.level})`).join(', ')}
+Links: ${links.map((l) => `${l.type}: ${l.url}`).join(', ')}
+  `.trim();
+
+  // Build jobs summary
+  const jobsSummary = jobs.map((j) =>
+    `Job ID: ${j.jobId}\nTitle: ${j.title}\nDescription: ${j.description}\nRequirements: ${j.requirements}\nField: ${j.mainFieldName}\nSpecialization: ${j.subFieldName}\nLocation: ${j.location}\nSalary: ${j.salary}\nType: ${j.jobType}\nWork Mode: ${j.workMode}`
+  ).join('\n\n---\n\n');
+
+  const prompt = `You are an expert job recommendation system. Compare the following job seeker profile against each job listing and determine how well each job matches the candidate.
+
+PROFILE:
+${profileSummary}
+
+JOBS:
+${jobsSummary}
+
+For each job, return a match percentage (0-100) and 2-4 short reasons explaining why it matches or doesn't match. Focus on skills alignment, experience relevance, education fit, and language proficiency.
+
+Return a JSON object with a single key "recommendations" containing an array of objects, each with: jobId (string), matchPercentage (number), reasons (array of strings).
+
+Sort the array by matchPercentage descending. Return at most 10 recommendations. Only include jobs with matchPercentage > 0.`;
+
+  try {
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a job recommendation engine. Respond with valid JSON only using the requested format.',
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      response_format: { type: 'json_object' },
+    });
+
+    const raw = completion.choices[0].message.content;
+    const parsed = JSON.parse(raw);
+    const recommendations = (parsed.recommendations || [])
+      .filter((r) => r.jobId && r.matchPercentage > 0)
+      .sort((a, b) => b.matchPercentage - a.matchPercentage)
+      .slice(0, 10)
+      .map((r) => ({
+        jobId: r.jobId,
+        matchPercentage: Math.round(r.matchPercentage),
+        reasons: (r.reasons || []).slice(0, 4),
+      }));
+
+    logger.info('getJobRecommendations results', {
+      uid,
+      count: recommendations.length,
+      topJobIds: recommendations.slice(0, 3).map((r) => r.jobId),
+    });
+
+    return recommendations;
+  } catch (error) {
+    logger.error('getJobRecommendations Groq call failed', error);
+    throw new HttpsError('internal', `Failed to generate recommendations: ${error.message}`);
+  }
+});
+
 exports.analyzeCv = onCall({ secrets: ['GROQ_API_KEY'], memory: '1GiB', timeoutSeconds: 120 }, async (request) => {
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
   const { cvUrl, jobDescription } = request.data;

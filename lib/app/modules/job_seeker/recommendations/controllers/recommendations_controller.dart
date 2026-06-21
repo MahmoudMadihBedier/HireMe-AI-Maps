@@ -1,0 +1,85 @@
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+import 'package:hire_me/app/modules/job_seeker/dashboard/controllers/job_seeker_dashboard_controller.dart';
+import 'package:hire_me/app/modules/job_seeker/dashboard/models/job_model.dart';
+
+class JobRecommendation {
+  final String jobId;
+  final int matchPercentage;
+  final List<String> reasons;
+  final JobModel job;
+
+  JobRecommendation({
+    required this.jobId,
+    required this.matchPercentage,
+    required this.reasons,
+    required this.job,
+  });
+}
+
+class RecommendationsController extends GetxController {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFunctions _functions = FirebaseFunctions.instance;
+
+  final recommendations = <JobRecommendation>[].obs;
+  final isLoading = false.obs;
+  final errorMessage = ''.obs;
+
+  Future<void> fetchRecommendations() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) {
+      errorMessage.value = 'Please login to get recommendations';
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final result = await _functions
+          .httpsCallable('getJobRecommendations')
+          .call({'uid': uid});
+
+      final data = result.data as List<dynamic>;
+      final dashboardCtrl = Get.find<JobSeekerDashboardController>();
+      final allJobs = dashboardCtrl.allJobs;
+
+      final mapped = <JobRecommendation>[];
+      for (final item in data) {
+        final map = item as Map<String, dynamic>;
+        final jobId = map['jobId'] as String? ?? '';
+        final matchPercentage = map['matchPercentage'] as int? ?? 0;
+        final reasons = (map['reasons'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            <String>[];
+
+        final job = allJobs.firstWhereOrNull((j) => j.id == jobId);
+        if (job == null) continue;
+
+        mapped.add(JobRecommendation(
+          jobId: jobId,
+          matchPercentage: matchPercentage,
+          reasons: reasons,
+          job: job,
+        ));
+      }
+
+      mapped.sort((a, b) => b.matchPercentage.compareTo(a.matchPercentage));
+      recommendations.value = mapped;
+    } on FirebaseFunctionsException catch (e) {
+      errorMessage.value = e.message ?? 'Failed to get recommendations';
+    } catch (e) {
+      errorMessage.value = 'Something went wrong';
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchRecommendations();
+  }
+}

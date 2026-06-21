@@ -7,6 +7,7 @@ import 'package:hire_me/app/modules/job_seeker/dashboard/views/widgets/job_filte
 import 'package:hire_me/app/modules/job_seeker/dashboard/views/widgets/main_fields_widget.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/views/widgets/search_widget.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/views/widgets/sub_fields_widget.dart';
+import 'package:hire_me/app/modules/job_seeker/recommendations/views/recommendations_view.dart';
 import 'package:hire_me/core/utils/app_color.dart';
 import 'package:hire_me/core/utils/app_text_style.dart';
 
@@ -41,70 +42,28 @@ class JobSeekerDashboardView extends GetView<JobSeekerDashboardController> {
 
                 const SubFieldsWidget(),
 
+                // ─── Tab bar ─────────────────────────────
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(25, 5, 25, 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Job For You',
-                        style: CustomTextstyle.poppinsBold.copyWith(
-                          fontSize: 18,
-                          color: AppColor.eblack,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Obx(
-                            () => GestureDetector(
-                              onTap: controller.toggleSortByDistance,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: controller.sortByDistance.value
-                                      ? AppColor.kblue
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: AppColor.kblue,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Text(
-                                  'Nearest',
-                                  style: TextStyle(
-                                    color: controller.sortByDistance.value
-                                        ? AppColor.kwhite
-                                        : AppColor.kblue,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: controller.clearFilters,
-                            child: Text(
-                              'Clear',
-                              style: TextStyle(
-                                color: AppColor.kblue,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                  padding: const EdgeInsets.fromLTRB(25, 12, 25, 4),
+                  child: Obx(
+                    () => Row(
+                      children: [
+                        _buildTabChip('All Jobs', 'all'),
+                        const SizedBox(width: 10),
+                        _buildTabChip('Recommended', 'recommended'),
+                      ],
+                    ),
                   ),
                 ),
 
+                // ─── Content ─────────────────────────────
                 Obx(() {
+                  if (controller.selectedDashboardTab.value ==
+                      'recommended') {
+                    return const RecommendationsView();
+                  }
+
+                  // 'all' tab
                   if (controller.isLoading.value) {
                     return const Padding(
                       padding: EdgeInsets.only(top: 50),
@@ -112,53 +71,77 @@ class JobSeekerDashboardView extends GetView<JobSeekerDashboardController> {
                     );
                   }
 
-                  if (controller.filteredJobs.isEmpty) {
-                    return _buildEmptyState();
-                  }
-
-                  final displayJobs = controller.filteredJobs.take(
-                    controller.displayCount.value,
-                  ).toList();
-
-                  final hasMore = controller.filteredJobs.length >
-                      controller.displayCount.value;
-
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(bottom: 8),
-                        itemCount: displayJobs.length,
-                        itemBuilder: (context, index) {
-                          final job = displayJobs[index];
-
-                          return Obx(
-                            () => JobCardWidget(
-                              job: job,
-                              isSaved: controller.isJobSaved(job.id),
-                              onSaveTap:
-                                  () => controller.toggleSaveJob(job.id),
-                              distance:
-                                  controller.jobDistances[job.companyId],
-                            ),
-                          );
-                        },
-                      ),
-                      if (hasMore)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 24),
-                          child: TextButton(
-                            onPressed: controller.loadMore,
-                            child: Text(
-                              'Load More (${controller.filteredJobs.length - controller.displayCount.value} remaining)',
-                              style: TextStyle(
-                                color: AppColor.kblue,
-                                fontWeight: FontWeight.w600,
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${controller.filteredJobs.length} Jobs Found',
+                              style: CustomTextstyle.poppinsSemiBold.copyWith(
+                                fontSize: 13,
+                                color: AppColor.greyLight,
                               ),
                             ),
-                          ),
+                            Row(
+                              children: [
+                                Obx(
+                                  () => GestureDetector(
+                                    onTap: controller.toggleSortByDistance,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: controller.sortByDistance.value
+                                            ? AppColor.kblue
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: AppColor.kblue,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Nearest',
+                                        style: TextStyle(
+                                          color:
+                                              controller.sortByDistance.value
+                                                  ? AppColor.kwhite
+                                                  : AppColor.kblue,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: controller.clearFilters,
+                                  child: Text(
+                                    'Clear',
+                                    style: TextStyle(
+                                      color: AppColor.kblue,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
+                      ),
+
+                      if (controller.filteredJobs.isEmpty)
+                        _buildEmptyState()
+                      else
+                        _buildJobList(),
                     ],
                   );
                 }),
@@ -167,6 +150,75 @@ class JobSeekerDashboardView extends GetView<JobSeekerDashboardController> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTabChip(String label, String value) {
+    final isSelected = controller.selectedDashboardTab.value == value;
+    return GestureDetector(
+      onTap: () => controller.selectDashboardTab(value),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColor.kblue : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColor.kblue),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? AppColor.kwhite : AppColor.kblue,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildJobList() {
+    final displayJobs = controller.filteredJobs.take(
+      controller.displayCount.value,
+    ).toList();
+
+    final hasMore = controller.filteredJobs.length >
+        controller.displayCount.value;
+
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          itemCount: displayJobs.length,
+          itemBuilder: (context, index) {
+            final job = displayJobs[index];
+
+            return Obx(
+              () => JobCardWidget(
+                job: job,
+                isSaved: controller.isJobSaved(job.id),
+                onSaveTap: () => controller.toggleSaveJob(job.id),
+                distance: controller.jobDistances[job.companyId],
+              ),
+            );
+          },
+        ),
+        if (hasMore)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: TextButton(
+              onPressed: controller.loadMore,
+              child: Text(
+                'Load More (${controller.filteredJobs.length - controller.displayCount.value} remaining)',
+                style: TextStyle(
+                  color: AppColor.kblue,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 

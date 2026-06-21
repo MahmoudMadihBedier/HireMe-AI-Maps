@@ -49,6 +49,12 @@ class JobSeekerDashboardController extends GetxController with DistanceMixin {
 
   final sortByDistance = false.obs;
 
+  final selectedDashboardTab = 'all'.obs;
+
+  void selectDashboardTab(String tab) {
+    selectedDashboardTab.value = tab;
+  }
+
   final salaryMin = ''.obs;
   final salaryMax = ''.obs;
 
