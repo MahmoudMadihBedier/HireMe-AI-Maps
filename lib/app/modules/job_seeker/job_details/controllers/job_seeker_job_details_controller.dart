@@ -80,7 +80,7 @@ class JobSeekerJobDetailsController extends GetxController
           'seekerId': uid,
           'jobId': currentJob.id,
           'savedAt': FieldValue.serverTimestamp(),
-        });
+        }, SetOptions(merge: true));
 
         isSaved.value = true;
       }
