@@ -60,9 +60,10 @@ class JobSeekerSearchJobsController extends GetxController with DistanceMixin {
         .snapshots()
         .listen(
           (snapshot) {
-            final jobs = snapshot.docs
-                .map((doc) => JobModel.fromMap(doc.id, doc.data()))
-                .toList();
+              final jobs = snapshot.docs
+                  .map((doc) => JobModel.fromMap(doc.id, doc.data()))
+                  .where((job) => !job.isDeleted)
+                  .toList();
 
             jobs.sort((a, b) {
               final aDate = a.createdAt?.toDate();

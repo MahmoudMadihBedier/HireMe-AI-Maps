@@ -34,26 +34,9 @@ class ProfileView extends GetView<ProfileController> {
                 const SizedBox(height: 6),
                 _buildSkillsCard(),
                 const SizedBox(height: 6),
-                Obx(
-                  () => controller.languages.isNotEmpty
-                      ? Column(
-                          children: [
-                            _buildLanguagesCard(),
-                            const SizedBox(height: 6),
-                          ],
-                        )
-                      : const SizedBox.shrink(),
-                ),
-                Obx(
-                  () => controller.links.isNotEmpty
-                      ? Column(
-                          children: [
-                            _buildLinksCard(),
-                            const SizedBox(height: 6),
-                          ],
-                        )
-                      : const SizedBox.shrink(),
-                ),
+                _buildLanguagesCard(),
+                const SizedBox(height: 6),
+                _buildLinksCard(),
                 const SizedBox(height: 24),
                 const Divider(height: 1, color: Color(0xFFE0E0E0)),
                 TextButton(
@@ -264,10 +247,7 @@ class ProfileView extends GetView<ProfileController> {
       icon: Icons.person_outline_rounded,
       child: Obx(
         () => controller.userAbout.isEmpty
-            ? const Text(
-                'Add about yourself...',
-                style: TextStyle(fontSize: 13, color: Color(0xFF8A8A9A)),
-              )
+            ? _emptyState('No about information added yet. Tap Edit to add.')
             : Text(
                 controller.userAbout,
                 style: const TextStyle(fontSize: 13, color: Color(0xFF1A1A2E)),
@@ -281,13 +261,15 @@ class ProfileView extends GetView<ProfileController> {
       title: 'Experience',
       icon: Icons.calendar_today_outlined,
       child: Obx(
-        () => Column(
-          children: [
-            ...controller.experience.asMap().entries.map(
-              (e) => _experienceItem(e.value),
-            ),
-          ],
-        ),
+        () => controller.experience.isEmpty
+            ? _emptyState('No experience added yet. Tap Edit Profile to add.')
+            : Column(
+                children: [
+                  ...controller.experience.asMap().entries.map(
+                    (e) => _experienceItem(e.value),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -297,13 +279,15 @@ class ProfileView extends GetView<ProfileController> {
       title: 'Education',
       icon: Icons.school_outlined,
       child: Obx(
-        () => Column(
-          children: [
-            ...controller.education.asMap().entries.map(
-              (e) => _educationItem(e.value),
-            ),
-          ],
-        ),
+        () => controller.education.isEmpty
+            ? _emptyState('No education added yet. Tap Edit Profile to add.')
+            : Column(
+                children: [
+                  ...controller.education.asMap().entries.map(
+                    (e) => _educationItem(e.value),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -313,20 +297,21 @@ class ProfileView extends GetView<ProfileController> {
       title: 'Skills',
       icon: Icons.description_outlined,
       child: Obx(
-        () => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (controller.skills.isNotEmpty)
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: controller.skills
-                    .map((skill) => _skillChip(skill))
-                    .toList(),
+        () => controller.skills.isEmpty
+            ? _emptyState('No skills added yet. Tap Edit Profile to add.')
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: controller.skills
+                        .map((skill) => _skillChip(skill))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 10),
+                ],
               ),
-            if (controller.skills.isNotEmpty) const SizedBox(height: 10),
-          ],
-        ),
       ),
     );
   }
@@ -336,9 +321,11 @@ class ProfileView extends GetView<ProfileController> {
       title: 'Languages',
       icon: Icons.language_rounded,
       child: Obx(
-        () => Column(
-          children: [...controller.languages.map((e) => _languageItem(e))],
-        ),
+        () => controller.languages.isEmpty
+            ? _emptyState('No languages added yet. Tap Edit Profile to add.')
+            : Column(
+                children: [...controller.languages.map((e) => _languageItem(e))],
+              ),
       ),
     );
   }
@@ -348,7 +335,9 @@ class ProfileView extends GetView<ProfileController> {
       title: 'Links',
       icon: Icons.link_rounded,
       child: Obx(
-        () => Column(children: [...controller.links.map((e) => _linkItem(e))]),
+        () => controller.links.isEmpty
+            ? _emptyState('No links added yet. Tap Edit Profile to add.')
+            : Column(children: [...controller.links.map((e) => _linkItem(e))]),
       ),
     );
   }
@@ -598,6 +587,16 @@ class ProfileView extends GetView<ProfileController> {
         shape: BoxShape.circle,
       ),
       child: Icon(Icons.camera_alt_outlined, size: 18, color: AppColor.kblue),
+    );
+  }
+
+  Widget _emptyState(String message) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Text(
+        message,
+        style: const TextStyle(fontSize: 13, color: Color(0xFF8A8A9A)),
+      ),
     );
   }
 }

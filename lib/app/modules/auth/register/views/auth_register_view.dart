@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../../core/utils/app_assets.dart';
 import '../../../../../core/utils/app_color.dart';
 import '../../../../../core/utils/app_string.dart';
 import '../../../../../core/utils/app_text_style.dart';
@@ -22,7 +21,6 @@ class AuthRegisterView extends GetView<AuthRegisterController> {
               const SizedBox(height: 60),
               _buildTitle(),
               const SizedBox(height: 36),
-              // أضيفي هاد قبل _buildEmailField()
               _buildNameField(),
               const SizedBox(height: 16),
               _buildEmailField(),
@@ -34,10 +32,6 @@ class AuthRegisterView extends GetView<AuthRegisterController> {
               const SizedBox(height: 32),
               _buildSignUpButton(),
               const SizedBox(height: 32),
-              _buildOrDivider(),
-              const SizedBox(height: 24),
-              _buildSocialButtons(),
-              const SizedBox(height: 24),
               _buildLoginRow(),
               const SizedBox(height: 32),
             ],
@@ -144,56 +138,6 @@ class AuthRegisterView extends GetView<AuthRegisterController> {
     );
   }
 
-  Widget _buildOrDivider() {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 0.75,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0x82FFFFFF), Color(0xFF0D47A1)],
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Text('OR', style: CustomTextstyle.poppins500Or),
-        ),
-        Expanded(
-          child: Container(
-            height: 0.75,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF0D47A1), Color(0x82FFFFFF)],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSocialButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _SocialButton(
-          child: Image.asset(Assets.imagesGoogle, width: 30, height: 30),
-        ),
-        const SizedBox(width: 8),
-        _SocialButton(
-          child: Image.asset(Assets.imagesFacebook, width: 30, height: 30),
-        ),
-        const SizedBox(width: 8),
-        _SocialButton(
-          child: Image.asset(Assets.imagesApple, width: 30, height: 30),
-        ),
-      ],
-    );
-  }
-
   Widget _buildLoginRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -255,22 +199,4 @@ class _AuthTextField extends StatelessWidget {
   }
 }
 
-class _SocialButton extends StatelessWidget {
-  final Widget child;
 
-  const _SocialButton({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        color: AppColor.kwhite,
-
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Center(child: child),
-    );
-  }
-}

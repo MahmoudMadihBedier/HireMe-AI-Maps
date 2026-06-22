@@ -39,10 +39,28 @@ class NotificationRepository {
     await batch.commit();
   }
 
-  Future<String?> getFcmToken(String uid) async {
+  Future<String?> getFcmToken(String uid, {String? role}) async {
     try {
-      final doc = await _firestore.collection('jobSeekers').doc(uid).get();
-      return doc.data()?['fcmToken'] as String?;
+      if (role != null) {
+        final collection =
+            role == 'company' ? 'companies' : 'jobSeekers';
+        final doc = await _firestore.collection(collection).doc(uid).get();
+        final token = doc.data()?['fcmToken'] as String?;
+        if (token != null) return token;
+      } else {
+        final seekerDoc =
+            await _firestore.collection('jobSeekers').doc(uid).get();
+        final seekerToken = seekerDoc.data()?['fcmToken'] as String?;
+        if (seekerToken != null) return seekerToken;
+
+        final companyDoc =
+            await _firestore.collection('companies').doc(uid).get();
+        final companyToken = companyDoc.data()?['fcmToken'] as String?;
+        if (companyToken != null) return companyToken;
+      }
+
+      final userDoc = await _firestore.collection('users').doc(uid).get();
+      return userDoc.data()?['fcmToken'] as String?;
     } catch (e) {
       debugPrint('Error in NotificationRepository.getFcmToken: $e');
       return null;

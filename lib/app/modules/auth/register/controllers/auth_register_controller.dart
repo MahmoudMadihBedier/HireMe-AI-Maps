@@ -102,18 +102,16 @@ class AuthRegisterController extends GetxController {
     await _firestore.collection('users').doc(uid).set({
       'uid': uid,
       'name': nameController.text.trim(),
-
       'email': emailController.text.trim(),
       'role': _role,
       'createdAt': FieldValue.serverTimestamp(),
-    });
+    }, SetOptions(merge: true));
     await _firestore.collection(collection).doc(uid).set({
       'uid': uid,
       'name': nameController.text.trim(),
-
       'email': emailController.text.trim(),
       'createdAt': FieldValue.serverTimestamp(),
-    });
+    }, SetOptions(merge: true));
   }
 
   void _navigateAfterRegister() {
