@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:hire_me/app/modules/job_seeker/my_applications/controllers/job_seeker_my_applications_controller.dart';
+import 'package:hire_me/app/routes/app_pages.dart';
 import 'package:hire_me/core/utils/app_color.dart';
 
 class ApplicationCard extends StatelessWidget {
@@ -21,7 +23,12 @@ class ApplicationCard extends StatelessWidget {
     final status = app['status'] as String? ?? 'pending';
     final statusColor = controller.statusColor(status);
 
-    return Container(
+    return GestureDetector(
+      onTap: () => Get.toNamed(
+        Routes.applicationDetail,
+        parameters: {'applicationId': app['id'] as String? ?? ''},
+      ),
+      child: Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
       decoration: BoxDecoration(
@@ -75,6 +82,7 @@ class ApplicationCard extends StatelessWidget {
 
           _buildStatusBadge(status, statusColor),
         ],
+      ),
       ),
     );
   }
