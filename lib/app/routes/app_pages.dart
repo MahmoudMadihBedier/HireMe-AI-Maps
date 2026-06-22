@@ -304,7 +304,7 @@ class AppPages {
     ),
     GetPage(
       name: Routes.jobSeekerRecommendations,
-      page: () => const RecommendationsView(showAppBar: true),
+      page: () => const RecommendationsView(),
       binding: RecommendationsBinding(),
       middlewares: [
         RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),

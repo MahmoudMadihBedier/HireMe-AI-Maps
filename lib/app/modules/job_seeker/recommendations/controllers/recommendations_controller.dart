@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/controllers/job_seeker_dashboard_controller.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/models/job_model.dart';
+import 'package:hire_me/app/modules/job_seeker/profile/controllers/profile_controller.dart';
 
 class JobRecommendation {
   final String jobId;
@@ -25,6 +26,12 @@ class RecommendationsController extends GetxController {
   final recommendations = <JobRecommendation>[].obs;
   final isLoading = false.obs;
   final errorMessage = ''.obs;
+
+  bool get profileHasMinimumData {
+    final profile = Get.find<ProfileController>();
+    return profile.skills.length >= 2 &&
+        (profile.experience.isNotEmpty || profile.education.isNotEmpty);
+  }
 
   Future<void> fetchRecommendations() async {
     final user = _auth.currentUser;

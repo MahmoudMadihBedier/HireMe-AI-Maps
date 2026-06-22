@@ -8,122 +8,143 @@ import 'package:hire_me/core/utils/app_color.dart';
 import 'package:hire_me/core/utils/app_text_style.dart';
 
 class RecommendationsView extends GetView<RecommendationsController> {
-  final bool showAppBar;
-
-  const RecommendationsView({super.key, this.showAppBar = false});
+  const RecommendationsView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final dashboardCtrl = Get.find<JobSeekerDashboardController>();
 
-    final body = Obx(() {
-      if (controller.isLoading.value) {
-        return const Padding(
-          padding: EdgeInsets.only(top: 40),
-          child: Center(child: CircularProgressIndicator()),
-        );
-      }
-
-      if (controller.errorMessage.isNotEmpty) {
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 40),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.error_outline, size: 60, color: AppColor.greyLight),
-                const SizedBox(height: 12),
-                Text(
-                  controller.errorMessage.value,
-                  style: TextStyle(color: AppColor.greyLight),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: controller.fetchRecommendations,
-                  icon: const Icon(Icons.refresh, size: 18),
-                  label: const Text('Try Again'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.kblue,
-                    foregroundColor: AppColor.kwhite,
-                  ),
-                ),
-              ],
-            ),
+    return Scaffold(
+      backgroundColor: const Color(0xffF5F7FA),
+      appBar: AppBar(
+        backgroundColor: AppColor.kwhite,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColor.kblue),
+          onPressed: () => Get.back(),
+        ),
+        title: Text(
+          'Recommended for You',
+          style: CustomTextstyle.poppinsBold.copyWith(
+            fontSize: 18,
+            color: AppColor.eblack,
           ),
-        );
-      }
-
-      if (controller.recommendations.isEmpty) {
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 60),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.auto_awesome, size: 70, color: AppColor.greyLight),
-                const SizedBox(height: 12),
-                Text(
-                  'No recommendations yet',
-                  style: CustomTextstyle.poppins500Grey.copyWith(fontSize: 16),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Complete your profile to get AI-powered job suggestions',
-                  style: TextStyle(color: AppColor.greyLight, fontSize: 13),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: controller.fetchRecommendations,
-                  icon: const Icon(Icons.refresh, size: 18),
-                  label: const Text('Refresh'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.kblue,
-                    foregroundColor: AppColor.kwhite,
-                  ),
-                ),
-              ],
-            ),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh_rounded, color: AppColor.kblue, size: 22),
+            onPressed: controller.fetchRecommendations,
           ),
-        );
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(25, 4, 25, 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${controller.recommendations.length} Recommendations',
-                  style: CustomTextstyle.poppinsSemiBold.copyWith(
-                    fontSize: 13,
-                    color: AppColor.greyLight,
+        ],
+      ),
+      body: Obx(() {
+        if (!controller.profileHasMinimumData) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 60),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.person_outline_rounded, size: 70, color: AppColor.greyLight),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Complete your profile to get personalized job recommendations',
+                    style: CustomTextstyle.poppins500Grey.copyWith(fontSize: 16),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                GestureDetector(
-                  onTap: () => Get.toNamed(Routes.jobSeekerRecommendations),
-                  child: Text(
-                    'See All',
-                    style: TextStyle(
-                      color: AppColor.kblue,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => Get.toNamed(Routes.editProfile),
+                    icon: const Icon(Icons.edit_outlined, size: 18),
+                    label: const Text('Complete Profile'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.kblue,
+                      foregroundColor: AppColor.kwhite,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 24),
-            itemCount: controller.recommendations.length,
-            itemBuilder: (context, index) {
-              final rec = controller.recommendations[index];
-              return Obx(
+          );
+        }
+
+        if (controller.isLoading.value) {
+          return const Padding(
+            padding: EdgeInsets.only(top: 40),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (controller.errorMessage.isNotEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 40),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.error_outline, size: 60, color: AppColor.greyLight),
+                  const SizedBox(height: 12),
+                  Text(
+                    controller.errorMessage.value,
+                    style: TextStyle(color: AppColor.greyLight),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: controller.fetchRecommendations,
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text('Try Again'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.kblue,
+                      foregroundColor: AppColor.kwhite,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (controller.recommendations.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 60),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.auto_awesome, size: 70, color: AppColor.greyLight),
+                  const SizedBox(height: 12),
+                  Text(
+                    'No recommendations yet',
+                    style: CustomTextstyle.poppins500Grey.copyWith(fontSize: 16),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Keep updating your profile to get AI-powered job suggestions',
+                    style: TextStyle(color: AppColor.greyLight, fontSize: 13),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: controller.fetchRecommendations,
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text('Refresh'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.kblue,
+                      foregroundColor: AppColor.kwhite,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return ListView(
+          padding: const EdgeInsets.only(top: 16, bottom: 24),
+          children: controller.recommendations.map((rec) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              child: Obx(
                 () => RecommendedJobCard(
                   job: rec.job,
                   isSaved: dashboardCtrl.isJobSaved(rec.jobId),
@@ -132,57 +153,11 @@ class RecommendationsView extends GetView<RecommendationsController> {
                   matchPercentage: rec.matchPercentage,
                   reasons: rec.reasons,
                 ),
-              );
-            },
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: TextButton(
-                onPressed: () => Get.toNamed(Routes.jobSeekerRecommendations),
-                child: Text(
-                  'See All ${controller.recommendations.length} Recommendations',
-                  style: TextStyle(
-                    color: AppColor.kblue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
               ),
-            ),
-          ),
-        ],
-      );
-    });
-
-    if (showAppBar) {
-      return Scaffold(
-        backgroundColor: const Color(0xffF5F7FA),
-        appBar: AppBar(
-          backgroundColor: AppColor.kwhite,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColor.kblue),
-            onPressed: () => Get.back(),
-          ),
-          title: Text(
-            'Recommended for You',
-            style: CustomTextstyle.poppinsBold.copyWith(
-              fontSize: 18,
-              color: AppColor.eblack,
-            ),
-          ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Icon(Icons.refresh_rounded, color: AppColor.kblue, size: 22),
-              onPressed: controller.fetchRecommendations,
-            ),
-          ],
-        ),
-        body: body,
-      );
-    }
-
-    return body;
+            );
+          }).toList(),
+        );
+      }),
+    );
   }
 }

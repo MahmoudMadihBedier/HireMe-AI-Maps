@@ -26,6 +26,8 @@ class ProfileView extends GetView<ProfileController> {
               children: [
                 _buildProfileCard(),
                 const SizedBox(height: 6),
+                _editProfileButton(),
+                const SizedBox(height: 6),
                 _buildAboutCard(),
                 const SizedBox(height: 6),
                 _buildExperienceCard(),
@@ -39,13 +41,8 @@ class ProfileView extends GetView<ProfileController> {
                 _buildLinksCard(),
                 const SizedBox(height: 24),
                 const Divider(height: 1, color: Color(0xFFE0E0E0)),
-                TextButton(
-                  onPressed: controller.logout,
-                  child: const Text(
-                    'Logout',
-                    style: TextStyle(color: Color(0xFFEF4444), fontSize: 14),
-                  ),
-                ),
+                const SizedBox(height: 16),
+                _logoutButton(),
                 const SizedBox(height: 24),
               ],
             ),
@@ -207,15 +204,6 @@ class ProfileView extends GetView<ProfileController> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () => Get.toNamed(Routes.editProfile),
-                      child: const Icon(
-                        Icons.edit_outlined,
-                        size: 18,
-                        color: Color(0xFF8A8A9A),
-                      ),
-                    ),
                   ],
                 ),
 
@@ -324,7 +312,9 @@ class ProfileView extends GetView<ProfileController> {
         () => controller.languages.isEmpty
             ? _emptyState('No languages added yet. Tap Edit Profile to add.')
             : Column(
-                children: [...controller.languages.map((e) => _languageItem(e))],
+                children: [
+                  ...controller.languages.map((e) => _languageItem(e)),
+                ],
               ),
       ),
     );
@@ -338,6 +328,64 @@ class ProfileView extends GetView<ProfileController> {
         () => controller.links.isEmpty
             ? _emptyState('No links added yet. Tap Edit Profile to add.')
             : Column(children: [...controller.links.map((e) => _linkItem(e))]),
+      ),
+    );
+  }
+
+  Widget _editProfileButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: SizedBox(
+        width: double.infinity,
+        height: 46,
+        child: ElevatedButton.icon(
+          onPressed: () => Get.toNamed(Routes.editProfile),
+          icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 20),
+          label: const Text(
+            'Edit Profile',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColor.kblue,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _logoutButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: ElevatedButton.icon(
+          onPressed: controller.logout,
+          icon: const Icon(Icons.logout_rounded, color: Colors.white, size: 20),
+          label: const Text(
+            'Logout',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFEF4444),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
       ),
     );
   }
