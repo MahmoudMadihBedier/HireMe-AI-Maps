@@ -63,6 +63,13 @@ import '../modules/job_seeker/search_jobs/bindings/job_seeker_search_jobs_bindin
 import '../modules/job_seeker/search_jobs/views/job_seeker_search_jobs_view.dart';
 import '../modules/pdf_viewer/bindings/pdf_viewer_binding.dart';
 import '../modules/pdf_viewer/views/pdf_viewer_view.dart';
+import '../modules/job_seeker/edit_profile/bindings/edit_profile_binding.dart';
+import '../modules/job_seeker/edit_profile/views/edit_profile_view.dart';
+import '../modules/job_seeker/edit_profile/views/education_form_view.dart';
+import '../modules/job_seeker/edit_profile/views/experience_form_view.dart';
+import '../modules/job_seeker/edit_profile/views/skills_editor_view.dart';
+import '../modules/job_seeker/edit_profile/views/language_form_view.dart';
+import '../modules/job_seeker/edit_profile/views/link_form_view.dart';
 import '../services/storage_service.dart';
 
 part 'app_routes.dart';
@@ -290,6 +297,49 @@ class AppPages {
       name: _Paths.COMPANY_MAP,
       page: () => const CompanyMapView(),
       binding: CompanyMapBinding(),
+    ),
+    GetPage(
+      name: Routes.editProfile,
+      page: () => EditProfileView(),
+      binding: EditProfileBinding(),
+      middlewares: [
+        RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
+      ],
+    ),
+    GetPage(
+      name: Routes.experienceForm,
+      page: () => const ExperienceFormView(),
+      middlewares: [
+        RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
+      ],
+    ),
+    GetPage(
+      name: Routes.educationForm,
+      page: () => const EducationFormView(),
+      middlewares: [
+        RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
+      ],
+    ),
+    GetPage(
+      name: Routes.skillsEditor,
+      page: () => const SkillsEditorView(),
+      middlewares: [
+        RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
+      ],
+    ),
+    GetPage(
+      name: Routes.languageForm,
+      page: () => const LanguageFormView(),
+      middlewares: [
+        RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
+      ],
+    ),
+    GetPage(
+      name: Routes.linkForm,
+      page: () => const LinkFormView(),
+      middlewares: [
+        RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
+      ],
     ),
   ];
 }

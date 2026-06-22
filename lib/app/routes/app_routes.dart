@@ -44,6 +44,13 @@ abstract class Routes {
   static const pdfViewer = _Paths.pdfViewer;
   static const COMPANY_MAP = _Paths.COMPANY_MAP;
   static const jobsMap = _Paths.jobsMap;
+
+  static const editProfile = _Paths.editProfile;
+  static const experienceForm = _Paths.experienceForm;
+  static const educationForm = _Paths.educationForm;
+  static const skillsEditor = _Paths.skillsEditor;
+  static const languageForm = _Paths.languageForm;
+  static const linkForm = _Paths.linkForm;
 }
 
 abstract class _Paths {
@@ -83,4 +90,10 @@ abstract class _Paths {
   static const pdfViewer = '/pdf-viewer';
   static const COMPANY_MAP = '/company-map';
   static const jobsMap = '/jobs-map';
+  static const editProfile = '/job-seeker/edit-profile';
+  static const experienceForm = '/job-seeker/experience-form';
+  static const educationForm = '/job-seeker/education-form';
+  static const skillsEditor = '/job-seeker/skills-editor';
+  static const languageForm = '/job-seeker/language-form';
+  static const linkForm = '/job-seeker/link-form';
 }

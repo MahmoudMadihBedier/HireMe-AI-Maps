@@ -124,13 +124,15 @@ class EducationModel {
   final String field;
   final String startYear;
   final String endYear;
+  final bool isCurrent;
 
   EducationModel({
     required this.school,
     required this.degree,
     required this.field,
     required this.startYear,
-    required this.endYear,
+    this.endYear = '',
+    this.isCurrent = false,
   });
 
   factory EducationModel.fromMap(Map<String, dynamic> map) {
@@ -140,6 +142,7 @@ class EducationModel {
       field: map['field'] ?? '',
       startYear: map['startYear'] ?? '',
       endYear: map['endYear'] ?? '',
+      isCurrent: map['isCurrent'] ?? false,
     );
   }
 
@@ -149,7 +152,26 @@ class EducationModel {
     'field': field,
     'startYear': startYear,
     'endYear': endYear,
+    'isCurrent': isCurrent,
   };
+
+  EducationModel copyWith({
+    String? school,
+    String? degree,
+    String? field,
+    String? startYear,
+    String? endYear,
+    bool? isCurrent,
+  }) {
+    return EducationModel(
+      school: school ?? this.school,
+      degree: degree ?? this.degree,
+      field: field ?? this.field,
+      startYear: startYear ?? this.startYear,
+      endYear: endYear ?? this.endYear,
+      isCurrent: isCurrent ?? this.isCurrent,
+    );
+  }
 }
 
 // ─── Experience Model ─────────────────────────────────────
@@ -159,13 +181,15 @@ class ExperienceModel {
   final String startDate;
   final String endDate;
   final String description;
+  final bool isCurrent;
 
   ExperienceModel({
     required this.company,
     required this.position,
     required this.startDate,
-    required this.endDate,
-    required this.description,
+    this.endDate = '',
+    this.description = '',
+    this.isCurrent = false,
   });
 
   factory ExperienceModel.fromMap(Map<String, dynamic> map) {
@@ -175,6 +199,7 @@ class ExperienceModel {
       startDate: map['startDate'] ?? '',
       endDate: map['endDate'] ?? '',
       description: map['description'] ?? '',
+      isCurrent: map['isCurrent'] ?? false,
     );
   }
 
@@ -184,7 +209,26 @@ class ExperienceModel {
     'startDate': startDate,
     'endDate': endDate,
     'description': description,
+    'isCurrent': isCurrent,
   };
+
+  ExperienceModel copyWith({
+    String? company,
+    String? position,
+    String? startDate,
+    String? endDate,
+    String? description,
+    bool? isCurrent,
+  }) {
+    return ExperienceModel(
+      company: company ?? this.company,
+      position: position ?? this.position,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      description: description ?? this.description,
+      isCurrent: isCurrent ?? this.isCurrent,
+    );
+  }
 }
 
 // ─── Language Model ───────────────────────────────────────
