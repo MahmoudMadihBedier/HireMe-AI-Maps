@@ -22,7 +22,7 @@ class ApplicationListController extends GetxController {
   final isLoading = true.obs;
   final isJobsLoading = true.obs;
   final isDeleting = false.obs;
-  final isRanking = false.obs;
+  final loadingJobId = Rxn<String>();
 
   final jobsCount = 0.obs;
   final applicantsCount = 0.obs;
@@ -511,7 +511,7 @@ class ApplicationListController extends GetxController {
     final companyJob = companyJobs.firstWhereOrNull((cj) => cj.id == jobId);
     if (companyJob == null) return;
 
-    isRanking.value = true;
+    loadingJobId.value = jobId;
 
     try {
       final jobApps =
@@ -569,7 +569,7 @@ class ApplicationListController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
-      isRanking.value = false;
+      loadingJobId.value = null;
     }
   }
 

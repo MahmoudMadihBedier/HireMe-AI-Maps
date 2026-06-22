@@ -57,7 +57,7 @@ class ApplicationsGroupCard extends StatelessWidget {
             ),
             Obx(() {
               final controller = Get.find<ApplicationListController>();
-              if (!controller.isRanking.value) return const SizedBox.shrink();
+              if (controller.loadingJobId.value != job.jobId) return const SizedBox.shrink();
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Row(

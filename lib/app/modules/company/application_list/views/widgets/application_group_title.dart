@@ -57,12 +57,13 @@ class ApplicationGroupTitle extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Obx(() {
-          final isRanking = controller.isRanking.value;
+          final isLoading = controller.loadingJobId.value == job.jobId;
           return SizedBox(
             height: 28,
             child: ElevatedButton(
-              onPressed:
-                  isRanking ? null : () => controller.rankCandidatesWithAI(job.jobId),
+              onPressed: isLoading
+                  ? null
+                  : () => controller.rankCandidatesWithAI(job.jobId),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 backgroundColor: AppColor.kblue,
@@ -75,7 +76,7 @@ class ApplicationGroupTitle extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              child: isRanking
+              child: isLoading
                   ? SizedBox(
                       width: 14,
                       height: 14,
