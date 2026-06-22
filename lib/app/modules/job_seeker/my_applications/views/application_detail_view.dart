@@ -24,7 +24,11 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
         elevation: 0,
         title: const Text(
           'Application Details',
-          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
@@ -41,7 +45,10 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
         final data = controller.appData.value;
         if (data == null) {
           return const Center(
-            child: Text('Application not found', style: TextStyle(color: _textGrey)),
+            child: Text(
+              'Application not found',
+              style: TextStyle(color: _textGrey),
+            ),
           );
         }
 
@@ -102,13 +109,17 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
                   ? CachedNetworkImage(
                       imageUrl: iconUrl,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Icon(
+                      errorWidget: (_, _, _) => Icon(
                         Icons.work_outline_rounded,
                         color: AppColor.kblue,
                         size: 28,
                       ),
                     )
-                  : Icon(Icons.work_outline_rounded, color: AppColor.kblue, size: 28),
+                  : Icon(
+                      Icons.work_outline_rounded,
+                      color: AppColor.kblue,
+                      size: 28,
+                    ),
             ),
           ),
           const SizedBox(width: 14),
@@ -172,10 +183,10 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
               status == 'accepted'
                   ? Icons.check_circle_outline
                   : status == 'rejected'
-                      ? Icons.cancel_outlined
-                      : status == 'withdrawn'
-                          ? Icons.remove_circle_outline
-                          : Icons.hourglass_bottom_rounded,
+                  ? Icons.cancel_outlined
+                  : status == 'withdrawn'
+                  ? Icons.remove_circle_outline
+                  : Icons.hourglass_bottom_rounded,
               color: color,
               size: 24,
             ),
@@ -187,7 +198,11 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
               children: [
                 const Text(
                   'Status',
-                  style: TextStyle(fontSize: 11, color: _textGrey, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: _textGrey,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 3),
                 Text(
@@ -209,7 +224,11 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
             ),
             child: Text(
               controller.formatDate(data['createdAt'] as Timestamp?),
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
             ),
           ),
         ],
@@ -240,7 +259,11 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
         children: [
           const Text(
             'Timeline',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: _textDark),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: _textDark,
+            ),
           ),
           const SizedBox(height: 16),
           _timelineItem(
@@ -251,30 +274,34 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
           ),
           _timelineConnector(isComplete: status != 'pending'),
           _timelineItem(
-            icon: status == 'pending' ? Icons.hourglass_empty_rounded : Icons.check_circle_rounded,
+            icon: status == 'pending'
+                ? Icons.hourglass_empty_rounded
+                : Icons.check_circle_rounded,
             label: 'Under Review',
             date: status != 'pending' ? 'In progress' : '',
             isComplete: status != 'pending',
           ),
-          _timelineConnector(isComplete: status == 'accepted' || status == 'rejected'),
+          _timelineConnector(
+            isComplete: status == 'accepted' || status == 'rejected',
+          ),
           _timelineItem(
             icon: status == 'accepted'
                 ? Icons.check_circle_rounded
                 : status == 'rejected'
-                    ? Icons.cancel_rounded
-                    : Icons.radio_button_unchecked_rounded,
+                ? Icons.cancel_rounded
+                : Icons.radio_button_unchecked_rounded,
             label: status == 'accepted'
                 ? 'Accepted'
                 : status == 'rejected'
-                    ? 'Rejected'
-                    : 'Decision',
+                ? 'Rejected'
+                : 'Decision',
             date: '',
             isComplete: status == 'accepted' || status == 'rejected',
             color: status == 'accepted'
                 ? const Color(0xFF22C55E)
                 : status == 'rejected'
-                    ? const Color(0xFFEF4444)
-                    : null,
+                ? const Color(0xFFEF4444)
+                : null,
           ),
         ],
       ),
@@ -288,7 +315,9 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
     required bool isComplete,
     Color? color,
   }) {
-    final c = color ?? (isComplete ? const Color(0xFF22C55E) : const Color(0xFFD1D5DB));
+    final c =
+        color ??
+        (isComplete ? const Color(0xFF22C55E) : const Color(0xFFD1D5DB));
     return Row(
       children: [
         Icon(icon, size: 22, color: c),
@@ -304,10 +333,7 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
           ),
         ),
         if (date.isNotEmpty)
-          Text(
-            date,
-            style: TextStyle(fontSize: 11, color: _textGrey),
-          ),
+          Text(date, style: TextStyle(fontSize: 11, color: _textGrey)),
       ],
     );
   }
@@ -349,7 +375,11 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
               SizedBox(width: 8),
               Text(
                 'CV / Resume',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: _textDark),
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: _textDark,
+                ),
               ),
             ],
           ),
@@ -385,16 +415,23 @@ class ApplicationDetailView extends GetView<ApplicationDetailController> {
       height: 48,
       child: Obx(
         () => ElevatedButton.icon(
-          onPressed: controller.isWithdrawing.value ? null : controller.withdrawApplication,
+          onPressed: controller.isWithdrawing.value
+              ? null
+              : controller.withdrawApplication,
           icon: controller.isWithdrawing.value
               ? const SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
                 )
               : const Icon(Icons.remove_circle_outline, size: 20),
           label: Text(
-            controller.isWithdrawing.value ? 'Withdrawing...' : 'Withdraw Application',
+            controller.isWithdrawing.value
+                ? 'Withdrawing...'
+                : 'Withdraw Application',
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFEF4444),

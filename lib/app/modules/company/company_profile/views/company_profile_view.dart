@@ -479,7 +479,7 @@ class CompanyProfileView extends GetView<CompanyProfileController> {
 
     return GestureDetector(
       onTap: () async {
-        await Get.toNamed(Routes.COMPANY_MAP);
+        await Get.toNamed(Routes.companyMap);
         controller.refreshProfile();
       },
       child: Container(
@@ -517,10 +517,7 @@ class CompanyProfileView extends GetView<CompanyProfileController> {
               const SizedBox(height: 6),
               Text(
                 controller.location.value,
-                style: const TextStyle(
-                  color: Color(0xFF8A8A9A),
-                  fontSize: 13,
-                ),
+                style: const TextStyle(color: Color(0xFF8A8A9A), fontSize: 13),
               ),
             ],
             if (hasLocation) ...[
@@ -563,7 +560,7 @@ class CompanyProfileView extends GetView<CompanyProfileController> {
               height: 40,
               child: OutlinedButton.icon(
                 onPressed: () async {
-                  await Get.toNamed(Routes.COMPANY_MAP);
+                  await Get.toNamed(Routes.companyMap);
                   controller.refreshProfile();
                 },
                 icon: const Icon(Icons.edit_outlined, size: 16),
@@ -669,7 +666,7 @@ class CompanyProfileView extends GetView<CompanyProfileController> {
                 suffixIcon: IconButton(
                   icon: Icon(Icons.map_rounded, color: AppColor.kblue),
                   onPressed: () async {
-                    await Get.toNamed(Routes.COMPANY_MAP);
+                    await Get.toNamed(Routes.companyMap);
                     controller.refreshProfile();
                     controller.locationController.text =
                         controller.location.value;

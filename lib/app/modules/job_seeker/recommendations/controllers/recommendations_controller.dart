@@ -55,33 +55,32 @@ class RecommendationsController extends GetxController {
         final map = Map<String, dynamic>.from(item as Map);
         final jobId = map['jobId'] as String? ?? '';
         final matchPercentage = map['matchPercentage'] as int? ?? 0;
-        final reasons = (map['reasons'] as List?)
-                ?.map((e) => e.toString())
-                .toList() ??
+        final reasons =
+            (map['reasons'] as List?)?.map((e) => e.toString()).toList() ??
             <String>[];
 
         final job = allJobs.firstWhereOrNull((j) => j.id == jobId);
         if (job == null) continue;
 
-        mapped.add(JobRecommendation(
-          jobId: jobId,
-          matchPercentage: matchPercentage,
-          reasons: reasons,
-          job: job,
-        ));
+        mapped.add(
+          JobRecommendation(
+            jobId: jobId,
+            matchPercentage: matchPercentage,
+            reasons: reasons,
+            job: job,
+          ),
+        );
       }
 
       mapped.sort((a, b) => b.matchPercentage.compareTo(a.matchPercentage));
       recommendations.value = mapped;
     } on FirebaseFunctionsException catch (e) {
-      print('RecommendationsController FirebaseFunctionsException: ${e.code} - ${e.message}');
       if (e.code == 'unauthenticated') {
         errorMessage.value = 'Session expired. Please login again.';
       } else {
         errorMessage.value = e.message ?? 'Failed to get recommendations';
       }
-    } catch (e, stack) {
-      print('RecommendationsController error: $e\n$stack');
+    } catch (e) {
       errorMessage.value = 'Something went wrong';
     } finally {
       isLoading.value = false;

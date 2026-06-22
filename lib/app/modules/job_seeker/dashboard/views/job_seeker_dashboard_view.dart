@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/controllers/job_seeker_dashboard_controller.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/views/widgets/header_widget.dart';
-import 'package:hire_me/app/routes/app_pages.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/views/widgets/job_card_widget.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/views/widgets/job_filter_bottom_sheet.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/views/widgets/main_fields_widget.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/views/widgets/search_widget.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/views/widgets/sub_fields_widget.dart';
-import 'package:hire_me/app/modules/job_seeker/recommendations/controllers/recommendations_controller.dart';
-import 'package:hire_me/app/modules/job_seeker/recommendations/views/widgets/recommended_job_card.dart';
+import 'package:hire_me/app/modules/job_seeker/recommendations/views/recommendations_view.dart';
 import 'package:hire_me/core/utils/app_color.dart';
 import 'package:hire_me/core/utils/app_text_style.dart';
 
@@ -62,7 +60,7 @@ class JobSeekerDashboardView extends GetView<JobSeekerDashboardController> {
                 Obx(() {
                   if (controller.selectedDashboardTab.value ==
                       'recommended') {
-                    return _buildRecommendedPreview();
+                    return const RecommendationsView();
                   }
 
                   // 'all' tab
@@ -153,123 +151,6 @@ class JobSeekerDashboardView extends GetView<JobSeekerDashboardController> {
         ),
       ),
     );
-  }
-
-  Widget _buildRecommendedPreview() {
-    final recCtrl = Get.find<RecommendationsController>();
-
-    return Obx(() {
-      if (recCtrl.isLoading.value) {
-        return const Padding(
-          padding: EdgeInsets.only(top: 50),
-          child: Center(child: CircularProgressIndicator()),
-        );
-      }
-
-      if (recCtrl.errorMessage.isNotEmpty) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 40),
-          child: Center(
-            child: Text(
-              recCtrl.errorMessage.value,
-              style: TextStyle(color: AppColor.greyLight),
-            ),
-          ),
-        );
-      }
-
-      if (recCtrl.recommendations.isEmpty) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 60),
-          child: Center(
-            child: Column(
-              children: [
-                Icon(Icons.auto_awesome, size: 70, color: AppColor.greyLight),
-                const SizedBox(height: 12),
-                Text(
-                  'No recommendations yet',
-                  style: CustomTextstyle.poppins500Grey.copyWith(fontSize: 16),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Complete your profile to get AI-powered job suggestions',
-                  style: TextStyle(color: AppColor.greyLight, fontSize: 13),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-
-      final previewRecs = recCtrl.recommendations.take(3).toList();
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(25, 4, 25, 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${recCtrl.recommendations.length} Recommendations',
-                  style: CustomTextstyle.poppinsSemiBold.copyWith(
-                    fontSize: 13,
-                    color: AppColor.greyLight,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => Get.toNamed(Routes.jobSeekerRecommendations),
-                  child: Text(
-                    'See All',
-                    style: TextStyle(
-                      color: AppColor.kblue,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 24),
-            itemCount: previewRecs.length,
-            itemBuilder: (context, index) {
-              final rec = previewRecs[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: RecommendedJobCard(
-                  job: rec.job,
-                  isSaved: controller.isJobSaved(rec.jobId),
-                  onSaveTap: () => controller.toggleSaveJob(rec.jobId),
-                  distance: controller.jobDistances[rec.job.companyId],
-                  matchPercentage: rec.matchPercentage,
-                  reasons: rec.reasons,
-                ),
-              );
-            },
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: TextButton(
-                onPressed: () => Get.toNamed(Routes.jobSeekerRecommendations),
-                child: Text(
-                  'See All ${recCtrl.recommendations.length} Recommendations',
-                  style: TextStyle(
-                    color: AppColor.kblue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    });
   }
 
   Widget _buildTabChip(String label, String value) {

@@ -304,7 +304,7 @@ class AppPages {
     ),
     GetPage(
       name: Routes.jobSeekerRecommendations,
-      page: () => const RecommendationsView(),
+      page: () => const RecommendationsView(showAppBar: true),
       binding: RecommendationsBinding(),
       middlewares: [
         RoleGuardMiddleware(requiredRole: AppUserRole.jobSeeker.value),
@@ -316,7 +316,7 @@ class AppPages {
       binding: PdfViewerBinding(),
     ),
     GetPage(
-      name: _Paths.COMPANY_MAP,
+      name: _Paths.companyMap,
       page: () => const CompanyMapView(),
       binding: CompanyMapBinding(),
     ),
