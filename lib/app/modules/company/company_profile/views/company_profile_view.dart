@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../../../core/utils/app_color.dart';
 import '../../../../routes/app_pages.dart';
@@ -51,7 +52,7 @@ class CompanyProfileView extends GetView<CompanyProfileController> {
                 const SizedBox(height: 10),
                 _infoCard(),
                 const SizedBox(height: 22),
-                _mapButton(),
+                _buildMiniMap(),
                 const SizedBox(height: 12),
                 _logoutButton(),
               ],
@@ -472,30 +473,114 @@ class CompanyProfileView extends GetView<CompanyProfileController> {
     );
   }
 
-  Widget _mapButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 48,
-      child: ElevatedButton.icon(
-        onPressed: () async {
-          await Get.toNamed(Routes.COMPANY_MAP);
-          controller.refreshProfile();
-        },
-        icon: const Icon(Icons.map_rounded, color: Colors.white, size: 20),
-        label: const Text(
-          'View on Map',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-          ),
+  Widget _buildMiniMap() {
+    final hasLocation =
+        controller.latitude.value != 0 || controller.longitude.value != 0;
+
+    return GestureDetector(
+      onTap: () async {
+        await Get.toNamed(Routes.COMPANY_MAP);
+        controller.refreshProfile();
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColor.kwhite,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: AppColor.kblack.withValues(alpha: 0.06),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColor.kblue,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.map_rounded, size: 18, color: Color(0xFF1A3794)),
+                SizedBox(width: 6),
+                Text(
+                  'Location',
+                  style: TextStyle(
+                    color: Color(0xFF1A1A2E),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+            if (controller.location.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(
+                controller.location.value,
+                style: const TextStyle(
+                  color: Color(0xFF8A8A9A),
+                  fontSize: 13,
+                ),
+              ),
+            ],
+            if (hasLocation) ...[
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: SizedBox(
+                  height: 150,
+                  child: GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(
+                        controller.latitude.value,
+                        controller.longitude.value,
+                      ),
+                      zoom: 14,
+                    ),
+                    markers: {
+                      Marker(
+                        markerId: const MarkerId('company'),
+                        position: LatLng(
+                          controller.latitude.value,
+                          controller.longitude.value,
+                        ),
+                        infoWindow: InfoWindow(
+                          title: controller.companyName.value,
+                        ),
+                      ),
+                    },
+                    zoomGesturesEnabled: false,
+                    scrollGesturesEnabled: false,
+                    rotateGesturesEnabled: false,
+                    tiltGesturesEnabled: false,
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              height: 40,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  await Get.toNamed(Routes.COMPANY_MAP);
+                  controller.refreshProfile();
+                },
+                icon: const Icon(Icons.edit_outlined, size: 16),
+                label: const Text(
+                  'Set Location',
+                  style: TextStyle(fontSize: 13),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColor.kblue,
+                  side: BorderSide(color: AppColor.kblue),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

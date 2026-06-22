@@ -29,6 +29,8 @@ class CompanyProfileController extends GetxController {
   final email = ''.obs;
   final phone = ''.obs;
   final location = ''.obs;
+  final latitude = 0.0.obs;
+  final longitude = 0.0.obs;
   final website = ''.obs;
   final description = ''.obs;
   final logoUrl = ''.obs;
@@ -109,6 +111,11 @@ class CompanyProfileController extends GetxController {
 
     location.value =
         data['location']?.toString() ?? data['address']?.toString() ?? '';
+
+    final lat = data['latitude'];
+    final lng = data['longitude'];
+    if (lat != null) latitude.value = (lat as num).toDouble();
+    if (lng != null) longitude.value = (lng as num).toDouble();
 
     website.value =
         data['website']?.toString() ?? data['websiteUrl']?.toString() ?? '';

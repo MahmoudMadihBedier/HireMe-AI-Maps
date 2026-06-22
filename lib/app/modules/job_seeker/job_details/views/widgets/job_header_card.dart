@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'package:hire_me/app/routes/app_pages.dart';
 import 'package:hire_me/core/utils/app_color.dart';
 import 'package:hire_me/core/utils/app_text_style.dart';
 import 'package:hire_me/app/modules/job_seeker/job_details/controllers/job_seeker_job_details_controller.dart';
@@ -48,14 +49,21 @@ class JobHeaderCard extends GetView<JobSeekerJobDetailsController> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      job.companyName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppColor.greydark,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                    GestureDetector(
+                      onTap: () => Get.toNamed(
+                        Routes.companyPublic,
+                        parameters: {'companyId': job.companyId},
+                      ),
+                      child: Text(
+                        job.companyName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColor.kblue,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),

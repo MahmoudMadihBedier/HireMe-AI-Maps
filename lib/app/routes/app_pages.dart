@@ -63,6 +63,8 @@ import '../modules/job_seeker/search_jobs/bindings/job_seeker_search_jobs_bindin
 import '../modules/job_seeker/search_jobs/views/job_seeker_search_jobs_view.dart';
 import '../modules/pdf_viewer/bindings/pdf_viewer_binding.dart';
 import '../modules/pdf_viewer/views/pdf_viewer_view.dart';
+import '../modules/job_seeker/company_public/bindings/company_public_binding.dart';
+import '../modules/job_seeker/company_public/views/company_public_page.dart';
 import '../modules/job_seeker/edit_profile/bindings/edit_profile_binding.dart';
 import '../modules/job_seeker/edit_profile/views/edit_profile_view.dart';
 import '../modules/job_seeker/edit_profile/views/education_form_view.dart';
@@ -297,6 +299,11 @@ class AppPages {
       name: _Paths.COMPANY_MAP,
       page: () => const CompanyMapView(),
       binding: CompanyMapBinding(),
+    ),
+    GetPage(
+      name: Routes.companyPublic,
+      page: () => const CompanyPublicPage(),
+      binding: CompanyPublicBinding(),
     ),
     GetPage(
       name: Routes.editProfile,

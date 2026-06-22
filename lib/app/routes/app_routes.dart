@@ -44,6 +44,7 @@ abstract class Routes {
   static const pdfViewer = _Paths.pdfViewer;
   static const COMPANY_MAP = _Paths.COMPANY_MAP;
   static const jobsMap = _Paths.jobsMap;
+  static const companyPublic = _Paths.companyPublic;
 
   static const editProfile = _Paths.editProfile;
   static const experienceForm = _Paths.experienceForm;
@@ -90,6 +91,7 @@ abstract class _Paths {
   static const pdfViewer = '/pdf-viewer';
   static const COMPANY_MAP = '/company-map';
   static const jobsMap = '/jobs-map';
+  static const companyPublic = '/company';
   static const editProfile = '/job-seeker/edit-profile';
   static const experienceForm = '/job-seeker/experience-form';
   static const educationForm = '/job-seeker/education-form';
