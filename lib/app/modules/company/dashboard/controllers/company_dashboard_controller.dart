@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CompanyDashboardController extends GetxController {
@@ -28,6 +29,11 @@ class CompanyDashboardController extends GetxController {
   final unreadCount = 0.obs;
   final openJobs = 0.obs;
   final closedJobs = 0.obs;
+
+  final selectedTimeRange = 'week'.obs;
+  final isChartLoading = false.obs;
+  final topJobs = <CompanyBarChartItem>[].obs;
+  final statusDistribution = <CompanyPieChartItem>[].obs;
 
   final totalApplicants = 0.obs;
   final acceptedApplicants = 0.obs;
@@ -165,6 +171,7 @@ class CompanyDashboardController extends GetxController {
             _updateRecentJobsApplicantsCount();
             _syncSeekerProfileListeners();
             _rebuildRecentApplicants();
+            _computeChartData();
 
             isLoading.value = false;
           },
@@ -302,6 +309,110 @@ class CompanyDashboardController extends GetxController {
         '';
   }
 
+  void setTimeRange(String range) {
+    selectedTimeRange.value = range;
+    _computeChartData();
+  }
+
+  void _computeChartData() {
+    final threshold = _getDateThreshold(selectedTimeRange.value);
+    final filtered = _currentApplications.where((app) {
+      if (threshold == null) return true;
+      final createdAt = app.data['createdAt'];
+      if (createdAt is! Timestamp) return false;
+      return createdAt.toDate().isAfter(threshold);
+    }).toList();
+
+    _computeTopJobs(filtered);
+    _computeStatusDistribution(filtered);
+  }
+
+  DateTime? _getDateThreshold(String range) {
+    final now = DateTime.now();
+    switch (range) {
+      case 'week':
+        return now.subtract(const Duration(days: 7));
+      case 'month':
+        return now.subtract(const Duration(days: 30));
+      case 'all':
+        return null;
+      default:
+        return now.subtract(const Duration(days: 7));
+    }
+  }
+
+  void _computeTopJobs(List<_CompanyApplicationData> apps) {
+    final countByJob = <String, int>{};
+    final jobNames = <String, String>{};
+
+    for (final app in apps) {
+      final jobId = app.data['jobId']?.toString() ?? '';
+      if (jobId.isEmpty) continue;
+      countByJob[jobId] = (countByJob[jobId] ?? 0) + 1;
+      jobNames[jobId] = app.data['jobTitle']?.toString() ?? 'Untitled';
+    }
+
+    final sorted = countByJob.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final items = sorted.take(5).map((e) {
+      return CompanyBarChartItem(
+        jobTitle: jobNames[e.key] ?? 'Untitled',
+        count: e.value,
+        color: _jobColor(e.key.hashCode),
+      );
+    }).toList();
+
+    topJobs.value = items;
+  }
+
+  Color _jobColor(int hash) {
+    final colors = [
+      const Color(0xFF4A6CF7),
+      const Color(0xFF6B8CFF),
+      const Color(0xFF8AA9FF),
+      const Color(0xFFB4C8FF),
+      const Color(0xFF4A6CF7).withValues(alpha: 0.7),
+    ];
+    return colors[hash.abs() % colors.length];
+  }
+
+  void _computeStatusDistribution(List<_CompanyApplicationData> apps) {
+    final countByStatus = <String, int>{};
+    for (final app in apps) {
+      final status =
+          (app.data['status']?.toString() ?? 'pending').toLowerCase();
+      countByStatus[status] = (countByStatus[status] ?? 0) + 1;
+    }
+
+    final items = countByStatus.entries.map((e) {
+      return CompanyPieChartItem(
+        status: e.key,
+        count: e.value,
+        color: _statusColor(e.key),
+      );
+    }).toList();
+
+    statusDistribution.value = items;
+  }
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'pending':
+        return const Color(0xFFFFB74D);
+      case 'under_review':
+        return const Color(0xFF6B8CFF);
+      case 'accepted':
+        return const Color(0xFF81C784);
+      case 'rejected':
+        return const Color(0xFFE57373);
+      case 'withdrawn':
+        return const Color(0xFFBDBDBD);
+      default:
+        return const Color(0xFFBDBDBD);
+    }
+  }
+
   Future<void> refreshDashboard() async {
     listenToCompanyDashboard();
   }
@@ -384,288 +495,27 @@ class CompanyRecentApplicant {
     required this.createdAt,
   });
 }
-// import 'dart:async';
 
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:get/get.dart';
+class CompanyBarChartItem {
+  final String jobTitle;
+  final int count;
+  final Color color;
 
-// class CompanyDashboardController extends GetxController {
-//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-//   final FirebaseAuth _auth = FirebaseAuth.instance;
+  CompanyBarChartItem({
+    required this.jobTitle,
+    required this.count,
+    required this.color,
+  });
+}
 
-//   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _jobsSubscription;
-//   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
-//   _applicationsSubscription;
-//   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
-//   _notificationsSubscription;
+class CompanyPieChartItem {
+  final String status;
+  final int count;
+  final Color color;
 
-//   final isLoading = true.obs;
-
-//   final totalJobs = 0.obs;
-//   final unreadCount = 0.obs;
-//   final openJobs = 0.obs;
-//   final closedJobs = 0.obs;
-
-//   final totalApplicants = 0.obs;
-//   final acceptedApplicants = 0.obs;
-
-//   final recentJobs = <CompanyRecentJob>[].obs;
-//   final recentApplicants = <CompanyRecentApplicant>[].obs;
-
-//   final Map<String, int> _applicantsCountByJob = {};
-
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     listenToCompanyDashboard();
-//   }
-
-//   void listenToCompanyDashboard() {
-//     final uid = _auth.currentUser?.uid;
-
-//     if (uid == null) {
-//       isLoading.value = false;
-//       return;
-//     }
-
-//     isLoading.value = true;
-
-//     _jobsSubscription?.cancel();
-//     _applicationsSubscription?.cancel();
-//     _notificationsSubscription?.cancel();
-
-//     _jobsSubscription = _firestore
-//         .collection('jobs')
-//         .where('companyId', isEqualTo: uid)
-//         .snapshots()
-//         .listen(
-//           (snapshot) {
-//             final activeDocs = snapshot.docs.where((doc) {
-//               final data = doc.data();
-
-//               final isDeleted = data['isDeleted'] == true;
-//               final status = data['status']?.toString().toLowerCase() ?? '';
-
-//               return !isDeleted && status != 'deleted';
-//             }).toList();
-
-//             totalJobs.value = activeDocs.length;
-
-//             openJobs.value = activeDocs.where((doc) {
-//               final status =
-//                   doc.data()['status']?.toString().toLowerCase() ?? '';
-//               return status == 'open';
-//             }).length;
-
-//             closedJobs.value = activeDocs.where((doc) {
-//               final status =
-//                   doc.data()['status']?.toString().toLowerCase() ?? '';
-//               return status == 'closed';
-//             }).length;
-
-//             final jobs = activeDocs.map((doc) {
-//               final data = doc.data();
-
-//               return CompanyRecentJob(
-//                 id: doc.id,
-//                 title: data['title']?.toString() ?? 'Untitled Job',
-//                 location: data['location']?.toString() ?? '',
-//                 status: data['status']?.toString() ?? 'Open',
-//                 applicantCount: _applicantsCountByJob[doc.id] ?? 0,
-//                 mainFieldIconUrl: data['mainFieldIconUrl']?.toString() ?? '',
-//                 subFieldIconUrl: data['subFieldIconUrl']?.toString() ?? '',
-//                 createdAt: data['createdAt'],
-//               );
-//             }).toList();
-
-//             jobs.sort((a, b) {
-//               final aDate = a.createdAt is Timestamp
-//                   ? (a.createdAt as Timestamp).toDate()
-//                   : DateTime.fromMillisecondsSinceEpoch(0);
-
-//               final bDate = b.createdAt is Timestamp
-//                   ? (b.createdAt as Timestamp).toDate()
-//                   : DateTime.fromMillisecondsSinceEpoch(0);
-
-//               return bDate.compareTo(aDate);
-//             });
-
-//             recentJobs.value = jobs.take(3).toList();
-//             isLoading.value = false;
-//           },
-//           onError: (_) {
-//             isLoading.value = false;
-//           },
-//         );
-
-//     _applicationsSubscription = _firestore
-//         .collection('applications')
-//         .where('companyId', isEqualTo: uid)
-//         .snapshots()
-//         .listen(
-//           (snapshot) {
-//             final activeApplicationDocs = snapshot.docs.where((doc) {
-//               final data = doc.data();
-
-//               return data['isDeleted'] != true && data['jobDeleted'] != true;
-//             }).toList();
-
-//             totalApplicants.value = activeApplicationDocs.length;
-
-//             acceptedApplicants.value = activeApplicationDocs.where((doc) {
-//               final status =
-//                   doc.data()['status']?.toString().toLowerCase() ?? '';
-//               return status == 'accepted';
-//             }).length;
-
-//             _applicantsCountByJob.clear();
-
-//             for (final doc in activeApplicationDocs) {
-//               final jobId = doc.data()['jobId']?.toString() ?? '';
-//               if (jobId.isEmpty) continue;
-
-//               _applicantsCountByJob[jobId] =
-//                   (_applicantsCountByJob[jobId] ?? 0) + 1;
-//             }
-
-//             if (recentJobs.isNotEmpty) {
-//               recentJobs.value = recentJobs.map((job) {
-//                 return CompanyRecentJob(
-//                   id: job.id,
-//                   title: job.title,
-//                   location: job.location,
-//                   status: job.status,
-//                   applicantCount: _applicantsCountByJob[job.id] ?? 0,
-//                   mainFieldIconUrl: job.mainFieldIconUrl,
-//                   subFieldIconUrl: job.subFieldIconUrl,
-//                   createdAt: job.createdAt,
-//                 );
-//               }).toList();
-//             }
-
-//             final applicants = activeApplicationDocs.map((doc) {
-//               final data = doc.data();
-
-//               return CompanyRecentApplicant(
-//                 id: doc.id,
-//                 applicantName:
-//                     data['applicantName']?.toString() ??
-//                     data['seekerName']?.toString() ??
-//                     data['name']?.toString() ??
-//                     'Unknown Applicant',
-//                 jobTitle:
-//                     data['jobTitle']?.toString() ??
-//                     data['title']?.toString() ??
-//                     'Unknown Job',
-//                 location:
-//                     data['location']?.toString() ??
-//                     data['applicantLocation']?.toString() ??
-//                     'Palestine, Gaza',
-//                 imageUrl:
-//                     data['applicantImage']?.toString() ??
-//                     data['imageUrl']?.toString() ??
-//                     data['profileImage']?.toString() ??
-//                     data['avatarUrl']?.toString() ??
-//                     '',
-//                 createdAt: data['createdAt'],
-//               );
-//             }).toList();
-
-//             applicants.sort((a, b) {
-//               final aDate = a.createdAt is Timestamp
-//                   ? (a.createdAt as Timestamp).toDate()
-//                   : DateTime.fromMillisecondsSinceEpoch(0);
-
-//               final bDate = b.createdAt is Timestamp
-//                   ? (b.createdAt as Timestamp).toDate()
-//                   : DateTime.fromMillisecondsSinceEpoch(0);
-
-//               return bDate.compareTo(aDate);
-//             });
-
-//             recentApplicants.value = applicants.take(3).toList();
-//             isLoading.value = false;
-//           },
-//           onError: (_) {
-//             isLoading.value = false;
-//           },
-//         );
-
-//     _notificationsSubscription = _firestore
-//         .collection('notifications')
-//         .doc(uid)
-//         .collection('items')
-//         .where('isRead', isEqualTo: false)
-//         .snapshots()
-//         .listen(
-//           (snapshot) => unreadCount.value = snapshot.docs.length,
-//           onError: (_) => unreadCount.value = 0,
-//         );
-//   }
-
-//   Future<void> refreshDashboard() async {
-//     listenToCompanyDashboard();
-//   }
-
-//   String formatDate(dynamic timestamp) {
-//     if (timestamp is! Timestamp) return '';
-
-//     final date = timestamp.toDate();
-//     final diff = DateTime.now().difference(date);
-
-//     if (diff.inDays > 0) return '${diff.inDays}d ago';
-//     if (diff.inHours > 0) return '${diff.inHours}h ago';
-//     if (diff.inMinutes > 0) return '${diff.inMinutes}m ago';
-
-//     return 'now';
-//   }
-
-//   @override
-//   void onClose() {
-//     _jobsSubscription?.cancel();
-//     _applicationsSubscription?.cancel();
-//     _notificationsSubscription?.cancel();
-//     super.onClose();
-//   }
-// }
-
-// class CompanyRecentJob {
-//   final String id;
-//   final String title;
-//   final String location;
-//   final String status;
-//   final int applicantCount;
-//   final String mainFieldIconUrl;
-//   final String subFieldIconUrl;
-//   final dynamic createdAt;
-
-//   CompanyRecentJob({
-//     required this.id,
-//     required this.title,
-//     required this.location,
-//     required this.status,
-//     required this.applicantCount,
-//     this.mainFieldIconUrl = '',
-//     this.subFieldIconUrl = '',
-//     required this.createdAt,
-//   });
-// }
-
-// class CompanyRecentApplicant {
-//   final String id;
-//   final String applicantName;
-//   final String jobTitle;
-//   final String location;
-//   final String imageUrl;
-//   final dynamic createdAt;
-
-//   CompanyRecentApplicant({
-//     required this.id,
-//     required this.applicantName,
-//     required this.jobTitle,
-//     required this.location,
-//     required this.imageUrl,
-//     required this.createdAt,
-//   });
-// }
+  CompanyPieChartItem({
+    required this.status,
+    required this.count,
+    required this.color,
+  });
+}
