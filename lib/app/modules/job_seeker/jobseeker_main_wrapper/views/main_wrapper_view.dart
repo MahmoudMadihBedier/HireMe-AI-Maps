@@ -6,9 +6,9 @@ import 'package:hire_me/core/utils/app_color.dart';
 
 import 'package:hire_me/app/modules/job_seeker/chat/views/chat_view.dart';
 import 'package:hire_me/app/modules/job_seeker/dashboard/views/job_seeker_dashboard_view.dart';
-import 'package:hire_me/app/modules/job_seeker/jobs_map/views/jobs_map_view.dart';
 import 'package:hire_me/app/modules/job_seeker/my_applications/views/job_seeker_my_applications_view.dart';
 import 'package:hire_me/app/modules/job_seeker/profile/views/profile_view.dart';
+import 'package:hire_me/app/modules/job_seeker/recommendations/views/recommendations_view.dart';
 
 import '../controllers/main_wrapper_controller.dart';
 
@@ -27,7 +27,7 @@ class MainWrapperView extends GetView<MainWrapperController> {
             ChatView(),
             JobSeekerDashboardView(),
             JobSeekerMyApplicationsView(),
-            JobsMapView(),
+            RecommendationsView(),
           ],
         ),
       ),
@@ -82,7 +82,11 @@ class MainBottomNavBar extends GetView<MainWrapperController> {
                 icon: Icons.work_outline_rounded,
                 activeIcon: Icons.work_rounded,
               ),
-              _mapIcon(),
+              _navIcon(
+                index: 4,
+                icon: Icons.auto_awesome_outlined,
+                activeIcon: Icons.auto_awesome_rounded,
+              ),
             ],
           ),
         ),
@@ -119,14 +123,6 @@ class MainBottomNavBar extends GetView<MainWrapperController> {
           size: 25,
         ),
       ),
-    );
-  }
-
-  Widget _mapIcon() {
-    return _navIcon(
-      index: 4,
-      icon: Icons.map_outlined,
-      activeIcon: Icons.map_rounded,
     );
   }
 

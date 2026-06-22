@@ -13,19 +13,39 @@ class RecommendationsView extends GetView<RecommendationsController> {
   Widget build(BuildContext context) {
     final dashboardCtrl = Get.find<JobSeekerDashboardController>();
 
-    return Obx(() {
-      if (controller.isLoading.value) {
-        return const Padding(
-          padding: EdgeInsets.only(top: 40),
-          child: Center(child: CircularProgressIndicator()),
-        );
-      }
+    return Scaffold(
+      backgroundColor: const Color(0xffF5F7FA),
+      appBar: AppBar(
+        backgroundColor: AppColor.kwhite,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColor.kblue),
+          onPressed: () => Get.back(),
+        ),
+        title: Text(
+          'Recommended for You',
+          style: CustomTextstyle.poppinsBold.copyWith(
+            fontSize: 18,
+            color: AppColor.eblack,
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh_rounded, color: AppColor.kblue, size: 22),
+            onPressed: controller.fetchRecommendations,
+          ),
+        ],
+      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-      if (controller.errorMessage.isNotEmpty) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 40),
-          child: Center(
+        if (controller.errorMessage.isNotEmpty) {
+          return Center(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.error_outline, size: 60, color: AppColor.greyLight),
                 const SizedBox(height: 12),
@@ -45,15 +65,13 @@ class RecommendationsView extends GetView<RecommendationsController> {
                 ),
               ],
             ),
-          ),
-        );
-      }
+          );
+        }
 
-      if (controller.recommendations.isEmpty) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 60),
-          child: Center(
+        if (controller.recommendations.isEmpty) {
+          return Center(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.auto_awesome, size: 70, color: AppColor.greyLight),
                 const SizedBox(height: 12),
@@ -78,42 +96,17 @@ class RecommendationsView extends GetView<RecommendationsController> {
                 ),
               ],
             ),
-          ),
-        );
-      }
+          );
+        }
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(25, 8, 25, 0),
-            child: Row(
-              children: [
-                Text(
-                  'Recommended for You',
-                  style: CustomTextstyle.poppinsBold.copyWith(
-                    fontSize: 18,
-                    color: AppColor.eblack,
-                  ),
-                ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: controller.fetchRecommendations,
-                  child: Icon(Icons.refresh_rounded,
-                      color: AppColor.kblue, size: 22),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 4),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 24),
-            itemCount: controller.recommendations.length,
-            itemBuilder: (context, index) {
-              final rec = controller.recommendations[index];
-              return Obx(
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(19, 16, 19, 24),
+          itemCount: controller.recommendations.length,
+          itemBuilder: (context, index) {
+            final rec = controller.recommendations[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Obx(
                 () => RecommendedJobCard(
                   job: rec.job,
                   isSaved: dashboardCtrl.isJobSaved(rec.jobId),
@@ -122,11 +115,11 @@ class RecommendationsView extends GetView<RecommendationsController> {
                   matchPercentage: rec.matchPercentage,
                   reasons: rec.reasons,
                 ),
-              );
-            },
-          ),
-        ],
-      );
-    });
+              ),
+            );
+          },
+        );
+      }),
+    );
   }
 }

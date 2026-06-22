@@ -29,6 +29,8 @@ abstract class Routes {
   static const jobSeekerChat = _Paths.jobSeeker + _Paths.chat;
   static const jobSeekerChatDetails = _Paths.jobSeeker + _Paths.chatDetails;
   static const jobSeekerSearchJobs = _Paths.jobSeeker + _Paths.searchJobs;
+  static const jobSeekerRecommendations =
+      _Paths.jobSeeker + _Paths.recommendations;
 
   static const mainWrapper = _Paths.mainWrapper;
 
@@ -89,6 +91,7 @@ abstract class _Paths {
   static const companyChatDetails = '/company-chat-details';
   static const companyNotifications = '/company-notifications';
   static const searchJobs = '/search-jobs';
+  static const recommendations = '/recommendations';
   static const applicationDetail = '/application-detail';
   static const pdfViewer = '/pdf-viewer';
   static const COMPANY_MAP = '/company-map';
