@@ -71,7 +71,10 @@ class ProfileController extends GetxController {
           role: AppUserRole.jobSeeker.value,
           name: name,
         );
-        await _firestore.collection('jobSeekers').doc(uid).set(newUser.toMap());
+        await _firestore
+            .collection('jobSeekers')
+            .doc(uid)
+            .set(newUser.toMap(), SetOptions(merge: true));
         userModel.value = newUser;
       }
     } catch (e) {
