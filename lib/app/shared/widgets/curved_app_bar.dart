@@ -26,9 +26,7 @@ class CurvedAppBar extends StatelessWidget implements PreferredSizeWidget {
       padding: EdgeInsets.fromLTRB(25, 40, 25, _hasBottom ? 35 : 78),
       decoration: BoxDecoration(
         color: AppColor.kblue,
-        borderRadius: const BorderRadius.vertical(
-          bottom: Radius.circular(30),
-        ),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(30)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -59,12 +57,12 @@ class CurvedAppBar extends StatelessWidget implements PreferredSizeWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (actions != null) ...actions!,
+              ...?actions,
             ],
           ),
-          if (_hasBottom) ...[
+          if (bottom case final bottomWidget?) ...[
             const SizedBox(height: 8),
-            bottom!,
+            bottomWidget,
           ],
         ],
       ),
